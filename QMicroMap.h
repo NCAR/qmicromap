@@ -50,6 +50,7 @@ public:
 			double ymin,
 			double xmax,
 			double ymax,
+			std::string backGroundColor = "white",
 			QWidget* parent = 0);
 	virtual ~QMicroMap();
 

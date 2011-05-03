@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	// Create a Qt application
 	QApplication app(argc, argv);
 
-	QMicroMap map(db, xmin, ymin, xmax, ymax);
+	QMicroMap map(db, xmin, ymin, xmax, ymax, "lightblue");
 	map.resize(1000,800);
 
 	map.setWindowTitle("qmmtest");

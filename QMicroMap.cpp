@@ -39,6 +39,7 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db,
 		double ymin,
 		double xmax,
 		double ymax,
+		std::string backgroundColor,
 		QWidget* parent):
 QGraphicsView(parent),
 _db(db),
@@ -52,12 +53,20 @@ _ymax(ymax)
 	selectFeatures();
 
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-	_scene = new QGraphicsScene(this);
 
-    setSceneRect(_xmin, _ymin, _xmax-_xmin, _ymax-_ymin);
-	this->setScene(_scene);
-	this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	// create the scene to hold our graphics items
+	_scene = new QGraphicsScene(this);
+	setScene(_scene);
+
+	// set the background color
+	setBackgroundBrush(QBrush(backgroundColor.c_str()));
+
+    // set the scene rectangle to match our bounding box
+	setSceneRect(_xmin, _ymin, _xmax-_xmin, _ymax-_ymin);
+
+	// disable the scrollbars
+	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // Invert the y axis
 	QMatrix m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
