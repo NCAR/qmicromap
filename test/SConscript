@@ -7,7 +7,9 @@ tools = ['qmicromap','doxygen','prefixoptions']
 
 env = Environment(tools = ['default'] + tools)
 
-sources = ['qmmtest.cpp',]
+env.Uic4('QMicroMapTest.ui')
+
+sources = ['qmmtest.cpp','QMicroMapTest.cpp']
 
 test = env.Program('qmmtest', sources)
 env.Default(test)

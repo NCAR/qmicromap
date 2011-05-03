@@ -127,6 +127,18 @@ void QMicroMap::selectFeatures() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax) {
+	_xmin = xmin;
+	_ymin = ymin;
+	_xmax = xmax;
+	_ymax = ymax;
+
+	drawFeatures();
+
+	update();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures() {
 
 	for (std::vector<Feature*>::iterator

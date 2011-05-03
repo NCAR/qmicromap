@@ -54,6 +54,9 @@ public:
 			QWidget* parent = 0);
 	virtual ~QMicroMap();
 
+public slots:
+	void drawFeatures(double xmin, double ymin, double xmax, double ymax);
+
 protected:
     virtual void resizeEvent(QResizeEvent* event);
     /// Create the features that are available in the database. These

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "QMicroMap.h"
+#include "QMicroMapTest.h"
 
 int main(int argc, char** argv) {
 	if (argc != 6) {
@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 	// Create a Qt application
 	QApplication app(argc, argv);
 
-	QMicroMap map(db, xmin, ymin, xmax, ymax, "lightblue");
+	QMicroMapTest map(db, xmin, ymin, xmax, ymax, "lightblue");
 	map.resize(1000,800);
 
 	map.setWindowTitle("qmmtest");
