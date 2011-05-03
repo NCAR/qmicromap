@@ -25,11 +25,11 @@ int main(int argc, char** argv) {
 	double xmax = atof(argv[4]);
 	double ymax = atof(argv[5]);
 
-
 	// Create a Qt application
 	QApplication app(argc, argv);
 
 	QMicroMap map(db, xmin, ymin, xmax, ymax);
+	map.resize(1000,800);
 
 	map.setWindowTitle("qmmtest");
 

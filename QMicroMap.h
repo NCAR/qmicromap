@@ -55,16 +55,32 @@ public:
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);
-
+    /// Create the features that are available in the database. These
+    /// will be saved in _features.
+    void selectFeatures();
+    /// extract the features from the database and draw them.
+    /// xmin, ymin, xmax, ymax specifies the bounding box.
+    void drawFeatures();
+    ///
     void drawPoint(Feature* feature, SpatiaLiteDB::Point& p);
+    ///
     void drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& l);
+    ///
     void drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& p);
+    ///
 	SpatiaLiteDB& _db;
+	///
 	QGraphicsScene* _scene;
+	///
 	double _xmin;
+	///
 	double _ymin;
+	///
 	double _xmax;
+	///
 	double _ymax;
+	///
+	std::vector<Feature*> _features;
 
 
 };

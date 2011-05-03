@@ -8,7 +8,7 @@
 #include <iostream>
 #include <algorithm>
 
-/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 Feature::Feature(std::string tableName, std::string baseColor):
 _tableName(tableName),
 _name(tableName),
@@ -33,7 +33,7 @@ _edgeColor(edgeColor) {
 }
 PolygonFeature::~PolygonFeature() {}
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMap::QMicroMap(SpatiaLiteDB& db,
 		double xmin,
 		double ymin,
@@ -48,33 +48,57 @@ _xmax(xmax),
 _ymax(ymax)
 {
 
-	this->resize(800,800);
+	// determine what features we will use from this database
+	selectFeatures();
+
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 	_scene = new QGraphicsScene(this);
+
     setSceneRect(_xmin, _ymin, _xmax-_xmin, _ymax-_ymin);
 	this->setScene(_scene);
 	this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	std::vector<Feature*> selected_tables;
-	selected_tables.push_back(new PolygonFeature("admin_0_countries","beige", "black"));
-	selected_tables.push_back(new LineFeature("admin_1_states_provinces_lines_shp", "grey"));
-	selected_tables.push_back(new PolygonFeature("lakes","lightblue", "blue"));
-	selected_tables.push_back(new LineFeature("rivers_lake_centerlines", "blue"));
-	selected_tables.push_back(new PointFeature("geography_regions_points", "yellow", "brown"));
-	selected_tables.push_back(new PointFeature("geography_regions_elevation_points", "lightgreen", "green"));
-	selected_tables.push_back(new PointFeature("populated_places","red", "black"));
-	selected_tables.push_back(new LineFeature("geographic_lines", "black"));
-	selected_tables.push_back(new LineFeature("coastline", "red"));
+    // Invert the y axis
+	QMatrix m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
+	QGraphicsView::setMatrix(m);
+
+	// Lend me a hand
+    setCursor(Qt::OpenHandCursor);
+
+    // draw the features
+    drawFeatures();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+QMicroMap::~QMicroMap() {
+	for (int i = 0; i < _features.size(); i++) {
+		delete _features[i];
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::selectFeatures() {
+
+	std::vector<Feature*> all_features;
+	all_features.push_back(new PolygonFeature("admin_0_countries","beige", "black"));
+	all_features.push_back(new LineFeature("admin_1_states_provinces_lines_shp", "grey"));
+	all_features.push_back(new PolygonFeature("lakes","lightblue", "blue"));
+	all_features.push_back(new LineFeature("rivers_lake_centerlines", "blue"));
+	all_features.push_back(new PointFeature("geography_regions_points", "yellow", "brown"));
+	all_features.push_back(new PointFeature("geography_regions_elevation_points", "lightgreen", "green"));
+	all_features.push_back(new PointFeature("populated_places","red", "black"));
+	all_features.push_back(new LineFeature("geographic_lines", "black"));
+	all_features.push_back(new LineFeature("coastline", "red"));
 
 	// get the names of tables containing geometry
 	std::vector<std::string> geo_tables;
-	geo_tables = db.geometryTables();
+	geo_tables = _db.geometryTables();
 
 	// query the tables
 	for (std::vector<Feature*>::iterator
-			feature = selected_tables.begin();
-			feature != selected_tables.end();
+			feature = all_features.begin();
+			feature != all_features.end();
 			feature++) {
 
 		std::string table = (*feature)->_tableName;
@@ -84,11 +108,27 @@ _ymax(ymax)
 		if (result == geo_tables.end()) {
 			// selected table not found in the existing tables
 			std::cerr << table << " not found" << std::endl;
+			delete *feature;
 			continue;
 		}
+		_features.push_back(*feature);
+	}
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::drawFeatures() {
+
+	for (std::vector<Feature*>::iterator
+			feature = _features.begin();
+			feature != _features.end();
+			feature++) {
+
+		std::string table = (*feature)->_tableName;
 
 		// query the table
-		db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax);
+		_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax);
 
 		SpatiaLiteDB::PointList points = _db.points();
 		SpatiaLiteDB::LinestringList linestrings = _db.linestrings();
@@ -106,19 +146,8 @@ _ymax(ymax)
 			drawLinestring(*feature, linestrings[i]);
 		}
 	}
-
-    //Set-up the view
-	QMatrix m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
-	QGraphicsView::setMatrix(m);
-    setCursor(Qt::OpenHandCursor);
 }
-
-///////////////////////////////////////////////////////////
-QMicroMap::~QMicroMap() {
-
-}
-
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 
 	LineFeature* lfeature = dynamic_cast<LineFeature*>(feature);
@@ -144,7 +173,7 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 	_scene->addItem(item);
 }
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt) {
 
 	PointFeature* pfeature = dynamic_cast<PointFeature*>(feature);
@@ -169,7 +198,7 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt) {
 	_scene->addItem(item);
 }
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 
 	PolygonFeature* pfeature = dynamic_cast<PolygonFeature*>(feature);
@@ -194,7 +223,7 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 	_scene->addItem(item);
 }
 
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::resizeEvent(QResizeEvent* event) {
 
 	//this->fitInView(_scene->sceneRect());
@@ -205,10 +234,11 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
     QGraphicsView::resizeEvent(event);
 
 }
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
