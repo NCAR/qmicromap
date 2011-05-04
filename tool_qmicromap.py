@@ -6,8 +6,16 @@ tools = ['qt4','spatialdb','doxygen','prefixoptions']
 env = Environment(tools = ['default'] + tools)
 
 # qt modules
-qt4Modules = Split('QtGui QtCore QtSvg')
+qt4Modules = Split('QtCore QtGui QtSvg')
 env.EnableQt4Modules(qt4Modules)
+
+def win_qt_setup(env):
+    # Windows needs an extra include path for Qt modules.
+    qt4include = env['QT4DIR']+'/include'
+    env.AppendUnique(CPPPATH=[qt4include,]) 
+    env.EnableQt4Modules(qt4Modules)
+    
+        
 
 def mac_qt_setup(env):
 	# Mac OS setup
@@ -32,7 +40,10 @@ QMicroMap.h
 """)
 
 if env['PLATFORM'] == 'darwin':
-	mac_qt_setup(env)
+    mac_qt_setup(env)
+
+if env['PLATFORM'] == 'win32':
+    win_qt_setup(env)
 
 libqmicromap = env.Library('qmicromap', libsources)
 env.Default(libqmicromap)
@@ -49,6 +60,8 @@ def qmicromap(env):
     env.Require(tools)
     if env['PLATFORM'] == 'darwin':
 		mac_qt_setup(env)
+    if env['PLATFORM'] == 'win32':
+        win_qt_setup(env)
 
 
 Export('qmicromap')
