@@ -59,6 +59,12 @@ public slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);
+    //Set the current centerpoint in the
+    void setCenter(const QPointF& centerPoint);
+    QPointF getCenter();
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
     /// Create the features that are available in the database. These
     /// will be saved in _features.
     void selectFeatures();
@@ -85,7 +91,9 @@ protected:
 	double _ymax;
 	///
 	std::vector<Feature*> _features;
-
+	QPoint _lastPanPoint;
+    //Holds the current centerpoint for the view, used for panning and zooming
+    QPointF _currentCenterPoint;
 
 };
 

@@ -25,7 +25,18 @@ public:
 			QWidget* parent = 0);
 	virtual ~QMicroMapTest();
 
+public slots:
+	void zoomInSlot();
+	void zoomOutSlot();
+
 protected:
+	void zoom(double deltax, double deltay);
+	QMicroMap* _mm;
+	double _xmin;
+	double _ymin;
+	double _xmax;
+	double _ymax;
+	double _zoomInc;
 
 };
 
