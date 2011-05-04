@@ -1,7 +1,7 @@
 import os
 import sys
-
 import eol_scons
+
 tools = ['qt4','spatialdb','doxygen','prefixoptions']
 env = Environment(tools = ['default'] + tools)
 
@@ -11,11 +11,9 @@ env.EnableQt4Modules(qt4Modules)
 
 def win_qt_setup(env):
     # Windows needs an extra include path for Qt modules.
-    qt4include = env['QT4DIR']+'/include'
+    qt4include = env['QT4DIR'] + '/include'
     env.AppendUnique(CPPPATH=[qt4include,]) 
     env.EnableQt4Modules(qt4Modules)
-    
-        
 
 def mac_qt_setup(env):
 	# Mac OS setup
@@ -56,12 +54,12 @@ thisdir = env.Dir('.').srcnode().abspath
 def qmicromap(env):
     env.AppendUnique(CPPPATH   =[thisdir,])
     env.AppendLibrary('qmicromap')
-    env.AppendDoxref('QMicroMap')
+    env.AppendDoxref('QMicroMap')    
+    env.Replace(CCFLAGS=['-g','-O2'])
     env.Require(tools)
     if env['PLATFORM'] == 'darwin':
 		mac_qt_setup(env)
     if env['PLATFORM'] == 'win32':
         win_qt_setup(env)
-
 
 Export('qmicromap')
