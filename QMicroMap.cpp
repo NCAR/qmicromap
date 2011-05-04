@@ -134,10 +134,8 @@ void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax)
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures() {
 
+	// Remove all existing items from the scene
 	_scene->clear();
-
-	std::cout << "drawing features " << _xmin << " " << _ymin << " " << _xmax
-			<< " " << _ymax << std::endl;
 
 	for (std::vector<Feature*>::iterator feature = _features.begin(); feature
 			!= _features.end(); feature++) {
@@ -164,6 +162,7 @@ void QMicroMap::drawFeatures() {
 		}
 	}
 
+	// set the view to match our boundaries
 	QRectF rect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 	fitInView(rect);
 }
@@ -261,21 +260,21 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mousePressEvent(QMouseEvent* event) {
-	std::cout << "mousePressEvent" << std::endl;
 	//For panning the view
 	_lastPanPoint = event->pos();
 	setCursor(Qt::ClosedHandCursor);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mouseReleaseEvent(QMouseEvent* event) {
-	std::cout << "mouseReleaseEvent" << std::endl;
 	setCursor(Qt::OpenHandCursor);
 	_lastPanPoint = QPoint();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mouseMoveEvent(QMouseEvent* event) {
-	std::cout << "mouseMoveEvent" << std::endl;
 	if (!_lastPanPoint.isNull()) {
 		//Get how much we panned
 		QPointF delta = mapToScene(_lastPanPoint) - mapToScene(event->pos());
@@ -285,6 +284,8 @@ void QMicroMap::mouseMoveEvent(QMouseEvent* event) {
 		setCenter(getCenter() + delta);
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Sets the current centerpoint.  Also updates the scene's center point.
  * Unlike centerOn, which has no way of getting the floating point center
