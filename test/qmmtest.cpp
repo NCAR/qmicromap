@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 	QMicroMapTest map(db, xmin, ymin, xmax, ymax, "lightblue");
 	map.resize(1000,800);
 
-	map.setWindowTitle("qmmtest");
+	map.setWindowTitle(dbpath.c_str());
 
 	map.show();
 

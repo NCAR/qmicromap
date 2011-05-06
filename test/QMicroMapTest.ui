@@ -6,17 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>868</width>
-    <height>771</height>
+    <width>1105</width>
+    <height>822</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="margin">
-    <number>2</number>
-   </property>
    <item>
     <widget class="QFrame" name="frame">
      <property name="sizePolicy">
@@ -46,6 +43,13 @@
       <widget class="QPushButton" name="zoomOut">
        <property name="text">
         <string>-</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="labels">
+       <property name="text">
+        <string>Labels</string>
        </property>
       </widget>
      </item>

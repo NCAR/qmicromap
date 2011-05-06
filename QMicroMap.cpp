@@ -9,28 +9,28 @@
 #include <algorithm>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-Feature::Feature(std::string tableName, std::string baseColor) :
-	_tableName(tableName), _name(tableName), _baseColor(baseColor) {
+Feature::Feature(std::string tableName, std::string baseColor, std::string nameColumn) :
+	_tableName(tableName), _name(tableName), _baseColor(baseColor), _nameColumn(nameColumn) {
 }
 Feature::~Feature() {
 }
 
 PointFeature::PointFeature(std::string tableName, std::string baseColor,
-		std::string edgeColor) :
-	Feature(tableName, baseColor), _edgeColor(edgeColor) {
+		std::string edgeColor, std::string nameColumn) :
+	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
 }
 PointFeature::~PointFeature() {
 }
 
-LineFeature::LineFeature(std::string tableName, std::string baseColor) :
-	Feature(tableName, baseColor) {
+LineFeature::LineFeature(std::string tableName, std::string baseColor, std::string nameColumn) :
+	Feature(tableName, baseColor, nameColumn) {
 }
 LineFeature::~LineFeature() {
 }
 
 PolygonFeature::PolygonFeature(std::string tableName, std::string baseColor,
-		std::string edgeColor) :
-	Feature(tableName, baseColor), _edgeColor(edgeColor) {
+		std::string edgeColor, std::string nameColumn) :
+	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
 }
 PolygonFeature::~PolygonFeature() {
 }
@@ -67,8 +67,14 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	// Lend me a hand
 	setCursor(Qt::OpenHandCursor);
 
+	_pointsGroup = new QGraphicsItemGroup;
+	_pointsGroup->hide();
+
 	// draw the features
 	drawFeatures();
+
+	_scene->addItem(_pointsGroup);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -88,11 +94,9 @@ void QMicroMap::selectFeatures() {
 			"admin_1_states_provinces_lines_shp", "grey"));
 	all_features.push_back(new PolygonFeature("lakes", "lightblue", "blue"));
 	all_features.push_back(new LineFeature("rivers_lake_centerlines", "blue"));
-	all_features.push_back(new PointFeature("geography_regions_points",
-			"yellow", "brown"));
-	all_features.push_back(new PointFeature(
-			"geography_regions_elevation_points", "lightgreen", "green"));
-	all_features.push_back(new PointFeature("populated_places", "red", "black"));
+	all_features.push_back(new PointFeature("geography_regions_points","yellow", "brown", "Name"));
+	all_features.push_back(new PointFeature("geography_regions_elevation_points", "lightgreen", "green", "Name"));
+	all_features.push_back(new PointFeature("populated_places", "red", "black", "Name"));
 	all_features.push_back(new LineFeature("geographic_lines", "black"));
 	all_features.push_back(new LineFeature("coastline", "red"));
 
@@ -120,6 +124,11 @@ void QMicroMap::selectFeatures() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::labels(int on) {
+	_pointsGroup->setVisible(on);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax) {
 
 	_xmin = xmin;
@@ -141,16 +150,23 @@ void QMicroMap::drawFeatures() {
 			!= _features.end(); feature++) {
 
 		std::string table = (*feature)->_tableName;
+		std::string geometryColumn = "Geometry";
+		std::string nameColumn = (*feature)->_nameColumn;
 
 		// query the table
-		_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax);
+		try {
+			_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax, nameColumn);
+		} catch (std::string error) {
+			std::cout << error << std::endl;
+		}
+
 
 		SpatiaLiteDB::PointList points = _db.points();
 		SpatiaLiteDB::LinestringList linestrings = _db.linestrings();
 		SpatiaLiteDB::PolygonList polygons = _db.polygons();
 
 		for (int i = 0; i < points.size(); i++) {
-			drawPoint(*feature, points[i]);
+			drawPoint(*feature, points[i], _pointsGroup);
 		}
 
 		for (int i = 0; i < polygons.size(); i++) {
@@ -195,7 +211,7 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt) {
+void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt, QGraphicsItemGroup* group) {
 
 	PointFeature* pfeature = dynamic_cast<PointFeature*> (feature);
 	if (!pfeature) {
@@ -213,11 +229,27 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt) {
 	double deltay = 0.2;
 	QRectF rect(x, y, deltax, deltay);
 
-	QGraphicsEllipseItem* item = new QGraphicsEllipseItem(rect);
-	item->setPen(pen);
-	item->setBrush(brush);
+	QGraphicsEllipseItem* eitem = new QGraphicsEllipseItem(rect);
+	eitem->setPen(pen);
+	eitem->setBrush(brush);
+	if (group) {
+		group->addToGroup(eitem);
+	} else {
+		_scene->addItem(eitem);
+	}
 
-	_scene->addItem(item);
+	std::string label = pt._label;
+	if (label.size()) {
+		QGraphicsSimpleTextItem* litem = new QGraphicsSimpleTextItem(label.c_str(), group);
+		litem->setPos(QPointF(x,y));
+		litem->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+		litem->setFont(QFont("Helvetica", 12));
+		litem->setPen(pen);
+		litem->setBrush(brush);
+		if (group) {
+			group->addToGroup(litem);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

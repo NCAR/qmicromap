@@ -24,12 +24,13 @@ _zoomInc(0.1)
 	// setting up the Qt form
 	setupUi(this);
 
-	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax);
+	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax, backgroundColor);
 	QVBoxLayout* vb = new QVBoxLayout(frame);
 	vb->addWidget(_mm);
 
-	connect(zoomIn, SIGNAL(released()), this, SLOT(zoomInSlot()));
-	connect(zoomOut, SIGNAL(released()), this, SLOT(zoomOutSlot()));
+	connect(zoomIn,  SIGNAL(released()),       this, SLOT(zoomInSlot()));
+	connect(zoomOut, SIGNAL(released()),       this, SLOT(zoomOutSlot()));
+	connect(labels,  SIGNAL(stateChanged(int)), _mm, SLOT(labels(int)));
 
 }
 
