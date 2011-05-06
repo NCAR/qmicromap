@@ -14,29 +14,30 @@
 /////////////////////////////////////////////////////////////////////
 class Feature {
 public:
-	Feature(std::string tableName, std::string baseColor);
+	Feature(std::string tableName, std::string baseColor, std::string nameColumn = "");
 	virtual ~Feature();
 	std::string _tableName;
 	std::string _name;
 	std::string _baseColor;
+	std::string _nameColumn;
 };
 
 class PointFeature: public Feature {
 public:
-	PointFeature(std::string tableName, std::string baseColor, std::string edgeColor);
+	PointFeature(std::string tableName, std::string baseColor, std::string edgeColor, std::string nameColumn = "");
 	virtual ~PointFeature();
 	std::string _edgeColor;
 };
 
 class LineFeature: public Feature {
 public:
-	LineFeature(std::string tableName, std::string baseColor);
+	LineFeature(std::string tableName, std::string baseColor, std::string nameColumn = "");
 	virtual ~LineFeature();
 };
 
 class PolygonFeature: public Feature {
 public:
-	PolygonFeature(std::string tableName, std::string baseColor, std::string edgeColor);
+	PolygonFeature(std::string tableName, std::string baseColor, std::string edgeColor, std::string nameColumn = "");
 	virtual ~PolygonFeature();
 	std::string _edgeColor;
 };
@@ -44,6 +45,7 @@ public:
 /////////////////////////////////////////////////////////////////////
 class QMicroMap: public QGraphicsView {
 	Q_OBJECT
+
 public:
 	QMicroMap(SpatiaLiteDB& db,
 			double xmin,
@@ -56,6 +58,7 @@ public:
 
 public slots:
 	void drawFeatures(double xmin, double ymin, double xmax, double ymax);
+	void labels(int on);
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);
@@ -72,7 +75,7 @@ protected:
     /// xmin, ymin, xmax, ymax specifies the bounding box.
     void drawFeatures();
     ///
-    void drawPoint(Feature* feature, SpatiaLiteDB::Point& p);
+    void drawPoint(Feature* feature, SpatiaLiteDB::Point& p, QGraphicsItemGroup* group = 0);
     ///
     void drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& l);
     ///
@@ -94,6 +97,8 @@ protected:
 	QPoint _lastPanPoint;
     //Holds the current centerpoint for the view, used for panning and zooming
     QPointF _currentCenterPoint;
+    ///
+    QGraphicsItemGroup* _pointsGroup;
 
 };
 
