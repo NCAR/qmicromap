@@ -31,10 +31,12 @@ def mac_qt_setup(env):
 
 libsources = Split("""
 QMicroMap.cpp
+QStationModelGraphicsItem.cpp
 """)
 
 headers = Split("""
 QMicroMap.h
+QStationModelGraphicsItem.h
 """)
 
 if env['PLATFORM'] == 'darwin':

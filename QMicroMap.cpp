@@ -12,29 +12,41 @@
 Feature::Feature(std::string tableName, std::string baseColor, std::string nameColumn) :
 	_tableName(tableName), _name(tableName), _baseColor(baseColor), _nameColumn(nameColumn) {
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 Feature::~Feature() {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 PointFeature::PointFeature(std::string tableName, std::string baseColor,
 		std::string edgeColor, std::string nameColumn) :
 	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 PointFeature::~PointFeature() {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 LineFeature::LineFeature(std::string tableName, std::string baseColor, std::string nameColumn) :
 	Feature(tableName, baseColor, nameColumn) {
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 LineFeature::~LineFeature() {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 PolygonFeature::PolygonFeature(std::string tableName, std::string baseColor,
 		std::string edgeColor, std::string nameColumn) :
 	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 PolygonFeature::~PolygonFeature() {
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 		double ymax, std::string backgroundColor, QWidget* parent) :
@@ -223,13 +235,12 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt, QGraphicsIt
 	QPen pen(pfeature->_edgeColor.c_str());
 	QBrush brush(pfeature->_baseColor.c_str());
 
-	double x = pt._x;
-	double y = pt._y;
-	double deltax = 0.2;
-	double deltay = 0.2;
-	QRectF rect(x, y, deltax, deltay);
+	QRectF rect(-3, -3, 6, 6);
 
 	QGraphicsEllipseItem* eitem = new QGraphicsEllipseItem(rect);
+	eitem->setPos(pt._x, pt._y);
+	eitem->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+
 	eitem->setPen(pen);
 	eitem->setBrush(brush);
 	if (group) {
@@ -241,7 +252,7 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt, QGraphicsIt
 	std::string label = pt._label;
 	if (label.size()) {
 		QGraphicsSimpleTextItem* litem = new QGraphicsSimpleTextItem(label.c_str(), group);
-		litem->setPos(QPointF(x,y));
+		litem->setPos(pt._x, pt._y);
 		litem->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 		litem->setFont(QFont("Helvetica", 12));
 		litem->setPen(pen);

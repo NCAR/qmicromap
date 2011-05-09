@@ -7,7 +7,7 @@ tools = ['qmicromap','doxygen','prefixoptions']
 
 env = Environment(tools = ['default'] + tools)
 
-env.Uic4('QMicroMapTest.ui')
+env.Uic4(['QMicroMapTest.ui',])
 
 env.Replace(CCFLAGS=['-g','-O2'])
 

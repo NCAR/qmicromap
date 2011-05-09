@@ -6,7 +6,9 @@
  */
 #include "QMicroMapTest.h"
 #include <iostream>
+#include "QStationModelGraphicsItem.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMapTest::QMicroMapTest(SpatiaLiteDB& db,
 		double xmin,
 		double ymin,
@@ -24,29 +26,56 @@ _zoomInc(0.1)
 	// setting up the Qt form
 	setupUi(this);
 
-	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax, backgroundColor);
+	// we need a layout manager
 	QVBoxLayout* vb = new QVBoxLayout(frame);
+
+	// create the micromap and add to the layout
+	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax, backgroundColor);
 	vb->addWidget(_mm);
 
+	// connect signals
 	connect(zoomIn,  SIGNAL(released()),       this, SLOT(zoomInSlot()));
 	connect(zoomOut, SIGNAL(released()),       this, SLOT(zoomOutSlot()));
 	connect(labels,  SIGNAL(stateChanged(int)), _mm, SLOT(labels(int)));
 
+	double wspd = 45;
+	double wdir = 15;
+	double lon = -86;
+	for (double lat = 24.0; lat < 29.0; lat += 0.5) {
+		QStationModelGraphicsItem* sm = new QStationModelGraphicsItem(lon, lat, wspd, wdir);
+		wspd += 12;
+		wdir += 13;
+		lon -= 0.5;
+		_mm->scene()->addItem(sm);
+	}
+	wspd = 55;
+	wdir = 15;
+	lon = -86;
+	for (double lat = 27.0; lat >= 24.0; lat -= 0.25) {
+		QStationModelGraphicsItem* sm = new QStationModelGraphicsItem(lon, lat, wspd, wdir);
+		wspd += 9;
+		wdir += 13;
+		lon -= 0.7;
+		_mm->scene()->addItem(sm);
+	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMapTest::~QMicroMapTest() {
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMapTest::zoomInSlot() {
 	_mm->scale(1.0+_zoomInc, 1.0+_zoomInc);
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMapTest::zoomOutSlot() {
 	_mm->scale(1.0/(1.0+_zoomInc), 1.0/(1.0+_zoomInc));
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMapTest::zoom(double deltax, double deltay) {
 
 	_xmin = _xmin+deltax;
