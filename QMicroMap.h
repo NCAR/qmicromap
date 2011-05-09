@@ -81,6 +81,8 @@ protected:
     ///
     void drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& p);
     ///
+    void drawGrid();
+    ///
 	SpatiaLiteDB& _db;
 	///
 	QGraphicsScene* _scene;
@@ -99,6 +101,8 @@ protected:
     QPointF _currentCenterPoint;
     ///
     QGraphicsItemGroup* _pointsGroup;
+    ///
+    QGraphicsItemGroup* _gridGroup;
 
 };
 

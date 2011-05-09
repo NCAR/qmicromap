@@ -51,7 +51,9 @@ PolygonFeature::~PolygonFeature() {
 QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 		double ymax, std::string backgroundColor, QWidget* parent) :
 	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
-			_ymax(ymax) {
+			_ymax(ymax),
+			_pointsGroup(0),
+			_gridGroup(0){
 
 	// determine what features we will use from this database
 	selectFeatures();
@@ -80,12 +82,12 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	setCursor(Qt::OpenHandCursor);
 
 	_pointsGroup = new QGraphicsItemGroup;
-	_pointsGroup->hide();
 
 	// draw the features
 	drawFeatures();
 
 	_scene->addItem(_pointsGroup);
+	_pointsGroup->hide();
 
 }
 
@@ -109,7 +111,7 @@ void QMicroMap::selectFeatures() {
 	all_features.push_back(new PointFeature("geography_regions_points","yellow", "brown", "Name"));
 	all_features.push_back(new PointFeature("geography_regions_elevation_points", "lightgreen", "green", "Name"));
 	all_features.push_back(new PointFeature("populated_places", "red", "black", "Name"));
-	all_features.push_back(new LineFeature("geographic_lines", "black"));
+	all_features.push_back(new LineFeature("geographic_lines", "yellow"));
 	all_features.push_back(new LineFeature("coastline", "red"));
 
 	// get the names of tables containing geometry
@@ -290,16 +292,62 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::drawGrid() {
+
+	if (_gridGroup) {
+		_scene->destroyItemGroup(_gridGroup);
+	}
+
+	_gridGroup = new QGraphicsItemGroup;
+
+	QRectF rect = mapToScene(viewport()->geometry()).boundingRect();
+
+	double h = rect.height();
+	double delta = h / 5.0;
+	if (delta < 1.0) {
+		delta = 1.0;
+	} else {
+		if (delta < 2) {
+			delta = 2.0;
+		} else {
+			if (delta < 5.0) {
+				delta = 5.0;
+			} else {
+				if (delta < 10.0) {
+					delta = 10.0;
+				} else {
+					delta = 15.0;
+				}
+			}
+		}
+	}
+
+	QPen pen("grey");
+
+	for (double x = _xmin; x <= _xmax; x += delta) {
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, _ymin), QPointF(x, _ymax)));
+		line->setPen(pen);
+		_gridGroup->addToGroup(line);
+	}
+	for (double y = _ymin; y <= _ymax; y += delta) {
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(_xmin, y), QPointF(_xmax, y)));
+		line->setPen(pen);
+		_gridGroup->addToGroup(line);
+	}
+
+	_scene->addItem(_gridGroup);
+	_gridGroup->show();
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::resizeEvent(QResizeEvent* event) {
 
-	//QRectF rect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
-	//fitInView(rect);
-    //Get the rectangle of the visible area in scene coords
-    QRectF visibleArea = mapToScene(rect()).boundingRect();
-    setCenter(visibleArea.center());
-
-	//Call the subclass resize so the scrollbars are updated correctly
+	//Call the subclass resize
 	QGraphicsView::resizeEvent(event);
+
+	// draw the grid
+	drawGrid();
 
 }
 
