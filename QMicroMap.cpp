@@ -200,10 +200,6 @@ void QMicroMap::drawFeatures() {
 			drawLinestring(*feature, linestrings[i]);
 		}
 	}
-
-	// set the view to match our boundaries
-	QRectF rect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
-	fitInView(rect);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
