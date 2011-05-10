@@ -59,6 +59,7 @@ public:
 public slots:
 	void drawFeatures(double xmin, double ymin, double xmax, double ymax);
 	void labels(int on);
+	void grid(int on);
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);

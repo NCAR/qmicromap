@@ -9,15 +9,31 @@
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QStationModelGraphicsItem::QStationModelGraphicsItem(double x, double y,
-		double spdKnots, double dirMet,
+QStationModelGraphicsItem::QStationModelGraphicsItem(
+		double x,
+		double y,
+		double spdKnots,
+		double dirMet,
+		double tDryC,
+		double RH,
+		double presOrHeight,
+		bool isPres,
+		int hh,
+		int mm,
+		double scale,
 		QGraphicsItem* parent):
 QGraphicsItem(parent),
 _x(x),
 _y(y),
 _spdKnots(spdKnots),
 _dirMet(dirMet),
-_textOffset(40),
+_tDryC(tDryC),
+_RH(RH),
+_presOrHeight(presOrHeight),
+_isPres(isPres),
+_hh(hh),
+_mm(mm),
+_scale(scale),
 _aspectRatio(1.0)
 {
 	_text[N ] = "";
@@ -54,80 +70,94 @@ QRectF QStationModelGraphicsItem::boundingRect() const
 void QStationModelGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
             QWidget *widget)
  {
-     modelText(painter, _text[ N], N );
-     modelText(painter, _text[NE], NE);
-     modelText(painter, _text[ E], E );
-     modelText(painter, _text[SE], SE);
-     modelText(painter, _text[ S], S );
-     modelText(painter, _text[SW], SW);
-     modelText(painter, _text[ W], W );
-     modelText(painter, _text[NW], NW);
 
-     windFlag(painter);
+	 QPen oldPen = painter->pen();
+
+	 painter->setPen(QPen("black"));
+     drawWindFlag(painter);
+
+     painter->setPen(QPen("blue"));
+     drawTextFields(painter);
+
+     painter->setPen(oldPen);
+
  }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::modelText(QPainter *painter, QString txt, TEXT_POS position) {
+void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 
-	double x;
-	double y;
-    // The text will be placed around the perimeter of rect
-	QRect rect(-_textOffset, _textOffset, 2*_textOffset, -2*_textOffset);
+	// get the sector and coordinate assignments for this wind direction
+	TextSectors sectors(_dirMet, 10);
 
-	// find the size of the text bounding box
-    QRect textBox = painter->fontMetrics().boundingRect(txt);
+	// Draw each text field
+	QString tdry = QString("%1").arg(_tDryC,        0,'f',1);
 
-	// determine the start coordinates for the text. Arrange for justification
-    // to rect.
-    switch (position) {
-	case N:
-	    x = -textBox.width()/2;
-	    y = rect.bottom();
-		break;
-	case NE:
-	    x = rect.right();
-	    y = rect.bottom();
-		break;
-	case E:
-	    x = rect.right();
-	    y = textBox.height()/2;
-		break;
-	case SE:
-	    x = rect.right();
-	    y = rect.top() + textBox.height();
-		break;
-	case S:
-	    x = -textBox.width()/2;
-	    y = rect.top() + textBox.height();
-		break;
-	case SW:
-	    x = rect.left() - textBox.width();
-	    y = rect.top() + textBox.height();
-		break;
-	case W:
-	    x = rect.topLeft().x() - textBox.width();
-	    y = textBox.height()/2;
-		break;
-	case NW:
-	    x = rect.left() - textBox.width();
-	    y = rect.bottom();
-		break;
+	QString rh   = QString("%1").arg(_RH,           0,'f',0);
+
+	double presOrHeight = _presOrHeight;
+	if (_isPres) {
+		if (_presOrHeight >= 1000.0) {
+			presOrHeight = _presOrHeight - 1000.0;
+		} else {
+			if (_presOrHeight >= 900.0) {
+				presOrHeight = _presOrHeight - 900.0;
+			}
+		}
 	}
+	QString pht  = QString("%1").arg(presOrHeight, 0,'f',0);
 
-    // render the text.
-    QPointF point(x,y);
-    painter->drawText(point, txt);
+	int t = _hh*100 + _mm;
+	QString time = QString("%1").arg(t, 4);
+
+	drawTextField(painter, sectors, TextSectors::TDRY, tdry);
+	drawTextField(painter, sectors, TextSectors::RH,   rh);
+	drawTextField(painter, sectors, TextSectors::PHT,  pht);
+	drawTextField(painter, sectors, TextSectors::TIME, time);
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::windFlag(QPainter *painter) {
+void QStationModelGraphicsItem::drawTextField(QPainter* painter, TextSectors& sectors, TextSectors::TEXT_TYPE typ, QString txt) {
+
+
+
+	QRect textBox = painter->fontMetrics().boundingRect(txt);
+
+    double xoffset = 0;
+    if (sectors._hjust[typ] == TextSectors::RIGHT) {
+    	xoffset = -textBox.width();
+    }
+
+    double yoffset = 0;
+    if (sectors._vjust[typ] == TextSectors::TOP) {
+    	yoffset = textBox.height();
+    }
+
+	double x = sectors._x[typ] + xoffset;
+	double y = sectors._y[typ] + yoffset;
+
+    painter->drawText(x, y, txt);
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 
 	// draw the dot at the center of the flag
-	double dotRadius = _textOffset/10;
+	double dotRadius = 3;
 	painter->drawEllipse(-dotRadius, -dotRadius, 2*dotRadius, 2*dotRadius);
+	if (_spdKnots < 0) {
+		// winds are missing; draw double circle
+		painter->drawEllipse(-1.5*dotRadius, -1.5*dotRadius, 3*dotRadius, 3*dotRadius);
+	}
 
-	double barbLen = _textOffset;
+	if (_spdKnots < 0.1) {
+		// Don't try to draw a flag when wind speed is missing or zero.
+		return;
+	}
+
+	double barbLen = _scale;
 	double symScale = 0.20 * barbLen;
 
 	QPointF p1(0.0, 0.0);
@@ -143,8 +173,6 @@ void QStationModelGraphicsItem::windFlag(QPainter *painter) {
 	xyang(p1, d, barbLen, p2);
 	painter->drawLine(p1, p2);
 	p1 = p2;
-
-	//painter->symbol(QPointF(_x, _y), SKEWT_BLUE, Rect::SmallDot);
 
 	//	convert from m/s to knots.
 	//double w = _wspd*1.94;
@@ -235,4 +263,101 @@ void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length, QP
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::setText(TEXT_POS pos, QString text) {
 	_text[pos] = text;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset):
+	_wdir(wdir),
+	_offset(offset)
+{
+
+	double dir = 450 - wdir;
+
+	// make sure that the direction is between 0 and 360
+	while (dir < 0) {
+		dir += 360.0;
+	}
+	while (dir >= 360) {
+		dir -= 360.0;
+	}
+
+	// determine the wind flag sector
+	_windSector = (int)(dir/45.0);
+
+	// identify the sectors
+	switch (_windSector) {
+	case 1:
+	case 2:
+	case 5:
+	case 6:
+		_sector [TDRY] = 3;
+		_sector [RH]   = 4;
+		_sector [PHT]  = 0;
+		_sector [TIME] = 7;
+		break;
+	case 0:
+		_sector [TDRY] = 3;
+		_sector [RH]   = 4;
+		_sector [PHT]  = 1;
+		_sector [TIME] = 7;
+		break;
+	case 3:
+		_sector [TDRY] = 2;
+		_sector [RH]   = 4;
+		_sector [PHT]  = 0;
+		_sector [TIME] = 7;
+		break;
+	case 4:
+		_sector [TDRY] = 3;
+		_sector [RH]   = 5;
+		_sector [PHT]  = 0;
+		_sector [TIME] = 7;
+		break;
+	case 7:
+		_sector [TDRY] = 3;
+		_sector [RH]   = 4;
+		_sector [PHT]  = 0;
+		_sector [TIME] = 6;
+		break;
+	}
+
+	_hjust[TDRY] = RIGHT;
+	_hjust[RH]   = RIGHT;
+	_hjust[PHT]  = LEFT;
+	_hjust[TIME] = LEFT;
+
+	_vjust[TDRY] = BOTTOM;
+	_vjust[RH]   = TOP;
+	_vjust[PHT]  = BOTTOM;
+	_vjust[TIME] = TOP;
+
+	// compute the coordinates
+	createCoordinates();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+QStationModelGraphicsItem::TextSectors::~TextSectors() {
+
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::TextSectors::createCoordinates() {
+
+	std::vector<TEXT_TYPE> types;
+	types.push_back(TDRY);
+	types.push_back(RH);
+	types.push_back(PHT);
+	types.push_back(TIME);
+
+
+	for (std::vector<TEXT_TYPE>::iterator i = types.begin(); i != types.end(); i++) {
+		double angle = 45.0*(_sector[*i] + 0.5);
+		angle = M_PI*angle/180.0;
+
+		_x[*i] =  cos(angle)*_offset;
+
+		// the Y coordinate is inverted, since Y runs from top of screen to bottom of screen
+		_y[*i] = -sin(angle)*_offset;
+
+		//std::cout << "wdir:" << _wdir << " wind sector:" << _windSector << " type:" << *i << " sector:" << _sector[*i] << " x:" << _x[*i] << "   y:" << _y[*i] << std::endl;
+	}
 }
