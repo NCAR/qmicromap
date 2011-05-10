@@ -152,16 +152,16 @@ void QMicroMap::grid(int on) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax) {
+//void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax) {
 
-	_xmin = xmin;
-	_ymin = ymin;
-	_xmax = xmax;
-	_ymax = ymax;
+//	_xmin = xmin;
+//	_ymin = ymin;
+//	_xmax = xmax;
+//	_ymax = ymax;
 
-	drawFeatures();
+//	drawFeatures();
 
-}
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures() {

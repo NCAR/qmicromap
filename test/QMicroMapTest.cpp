@@ -95,13 +95,3 @@ void QMicroMapTest::zoomInSlot() {
 void QMicroMapTest::zoomOutSlot() {
 	_mm->scale(1.0/(1.0+_zoomInc), 1.0/(1.0+_zoomInc));
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMapTest::zoom(double deltax, double deltay) {
-
-	_xmin = _xmin+deltax;
-	_xmax = _xmax-deltax;
-	_ymin = _ymin+deltay;
-	_ymax = _ymax-deltay;
-	_mm->drawFeatures(_xmin, _ymin, _xmax, _ymax);
-}
