@@ -33,11 +33,9 @@ _zoomInc(0.1)
 	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax, backgroundColor);
 	vb->addWidget(_mm);
 
-	// connect signals
-	connect(zoomIn,  SIGNAL(released()),        this, SLOT(zoomInSlot()));
-	connect(zoomOut, SIGNAL(released()),        this, SLOT(zoomOutSlot()));
-	connect(labels,  SIGNAL(stateChanged(int)), _mm,  SLOT(labels(int)));
-	connect(grid,   SIGNAL(stateChanged(int)),  _mm,  SLOT(grid(int)));
+	// create the station group and add it to the scene.
+	_stationGroup = new QGraphicsItemGroup();
+	_mm->scene()->addItem(_stationGroup);
 
 	double wspd = 45;
 	double wdir = 15;
@@ -59,7 +57,7 @@ _zoomInc(0.1)
 		mm += 3;
 		tdry -= 1.3;
 		presOrHeight -= 3;
-		_mm->scene()->addItem(sm);
+		_stationGroup->addToGroup(sm);
 	}
 
 	wspd = 55;
@@ -76,8 +74,17 @@ _zoomInc(0.1)
 		mm -= 3;
 		tdry += .8;
 		presOrHeight -= 3;
-		_mm->scene()->addItem(sm);
+		_stationGroup->addToGroup(sm);
 	}
+
+
+	// connect signals
+	connect(zoomIn,  SIGNAL(released()),        this, SLOT(zoomInSlot()));
+	connect(zoomOut, SIGNAL(released()),        this, SLOT(zoomOutSlot()));
+	connect(labels,  SIGNAL(stateChanged(int)), _mm,  SLOT(labels(int)));
+	connect(grid,    SIGNAL(stateChanged(int)), _mm,  SLOT(grid(int)));
+	connect(obs,     SIGNAL(stateChanged(int)), this, SLOT(obsSlot(int)));
+
 }
 
 
@@ -94,4 +101,9 @@ void QMicroMapTest::zoomInSlot() {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMapTest::zoomOutSlot() {
 	_mm->scale(1.0/(1.0+_zoomInc), 1.0/(1.0+_zoomInc));
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMapTest::obsSlot(int on) {
+	_stationGroup->setVisible(on);
 }

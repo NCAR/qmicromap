@@ -28,10 +28,12 @@ public:
 public slots:
 	void zoomInSlot();
 	void zoomOutSlot();
+	void obsSlot(int);
 
 protected:
 	void zoom(double deltax, double deltay);
 	QMicroMap* _mm;
+	QGraphicsItemGroup* _stationGroup;
 	double _xmin;
 	double _ymin;
 	double _xmax;
