@@ -61,9 +61,7 @@ QStationModelGraphicsItem::~QStationModelGraphicsItem() {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QRectF QStationModelGraphicsItem::boundingRect() const
  {
-     qreal penWidth = 1;
-     return QRectF(-10 - penWidth / 2, -10 - penWidth / 2,
-                   20 + penWidth, 20 + penWidth);
+     return QRectF(-_scale, -_scale, 2*_scale, 2*_scale);
  }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
