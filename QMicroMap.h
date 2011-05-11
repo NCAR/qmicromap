@@ -55,9 +55,11 @@ public:
 			std::string backGroundColor = "white",
 			QWidget* parent = 0);
 	virtual ~QMicroMap();
+    /// Override the scale() function so that we can redraw the
+    /// the grid when zooming is effected through scaling.
+    virtual void scale(qreal sx, qreal sy);
 
 public slots:
-//	void drawFeatures(double xmin, double ymin, double xmax, double ymax);
 	void labels(int on);
 	void grid(int on);
 
@@ -103,7 +105,11 @@ protected:
     ///
     QGraphicsItemGroup* _pointsGroup;
     ///
+    bool _gridOn;
+    ///
     QGraphicsItemGroup* _gridGroup;
+    /// The current grid spacing, in degrees.
+    double _gridDelta;
 
 };
 

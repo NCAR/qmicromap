@@ -53,7 +53,10 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
 			_ymax(ymax),
 			_pointsGroup(0),
-			_gridGroup(0){
+			_gridOn(true),
+			_gridGroup(0),
+			_gridDelta(0)
+{
 
 	// determine what features we will use from this database
 	selectFeatures();
@@ -62,13 +65,14 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 
 	// create the scene to hold our graphics items
 	_scene = new QGraphicsScene(this);
+	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 	setScene(_scene);
+
+	QRectF r = sceneRect();
+	std::cout << "r:" << r.x() << " " << r.y() << " " << r.x() + r.width() << " " << r.y() + r.height() << std::endl;
 
 	// set the background color
 	setBackgroundBrush(QBrush(backgroundColor.c_str()));
-
-	// set the scene rectangle to match our bounding box
-	setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
 	// disable the scrollbars
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -86,9 +90,20 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	// draw the features
 	drawFeatures();
 
+	r = _scene->itemsBoundingRect();
+	std::cout << "items bounding rect:" << r.x() << " " << r.y() << " " << r.x() + r.width() << " " << r.y() + r.height() << std::endl;
+	QRectF rect;
+	rect = mapToScene(viewport()->geometry()).boundingRect();
+	std::cout << "viewport:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+	fitInView(r);
+	rect = mapToScene(viewport()->geometry()).boundingRect();
+	std::cout << "viewport:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+
 	_scene->addItem(_pointsGroup);
 	_pointsGroup->hide();
 
+	_gridGroup = new QGraphicsItemGroup;
+	_scene->addItem(_gridGroup);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,22 +161,22 @@ void QMicroMap::labels(int on) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::grid(int on) {
+	_gridOn = on;
 	if (_gridGroup) {
 		_gridGroup->setVisible(on);
 	}
 }
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
-//void QMicroMap::drawFeatures(double xmin, double ymin, double xmax, double ymax) {
+void QMicroMap::scale(qreal sx, qreal sy) {
 
-//	_xmin = xmin;
-//	_ymin = ymin;
-//	_xmax = xmax;
-//	_ymax = ymax;
+	// perform the scaling
+	QGraphicsView::scale(sx, sy);
 
-//	drawFeatures();
-
-//}
+	// redraw the grid if necessary
+	drawGrid();
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures() {
@@ -299,15 +314,13 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawGrid() {
 
-	if (_gridGroup) {
-		_scene->destroyItemGroup(_gridGroup);
-	}
 
-	_gridGroup = new QGraphicsItemGroup;
-
+	// get the current height of the viewport, in degrees.
 	QRectF rect = mapToScene(viewport()->geometry()).boundingRect();
-
 	double h = rect.height();
+
+	// determine the grid spacing. It will be 1, 2, 5, 10 or 15 degrees latitude.
+	// try for approx. 5 segments in latitude.
 	double delta = h / 5.0;
 	if (delta < 1.0) {
 		delta = 1.0;
@@ -327,21 +340,38 @@ void QMicroMap::drawGrid() {
 		}
 	}
 
-	QPen pen("grey");
+	// if the grid spacing is different than the current grid, remove the
+	// current grid and redraw.
+	if (delta != _gridDelta) {
+		_gridDelta = delta;
 
-	for (double x = _xmin; x <= _xmax; x += delta) {
-		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, _ymin), QPointF(x, _ymax)));
-		line->setPen(pen);
-		_gridGroup->addToGroup(line);
-	}
-	for (double y = _ymin; y <= _ymax; y += delta) {
-		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(_xmin, y), QPointF(_xmax, y)));
-		line->setPen(pen);
-		_gridGroup->addToGroup(line);
-	}
+		// destroy the current grid
+		QList<QGraphicsItem*> items = _gridGroup->childItems();
+		for (int i = 0; i < items.size(); i++) {
+			_gridGroup->removeFromGroup(items[i]);
+			delete items[i];
+		}
 
-	_scene->addItem(_gridGroup);
-	_gridGroup->show();
+		// create the new grid
+		QPen pen("grey");
+		for (double x = _xmin; x <= _xmax; x += _gridDelta) {
+			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, _ymin), QPointF(x, _ymax)));
+			line->setPen(pen);
+			_gridGroup->addToGroup(line);
+		}
+		for (double y = _ymin; y <= _ymax; y += _gridDelta) {
+			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(_xmin, y), QPointF(_xmax, y)));
+			line->setPen(pen);
+			_gridGroup->addToGroup(line);
+		}
+
+		// make it visible based on the current choice.
+		if (_gridOn) {
+			_gridGroup->show();
+		} else {
+			_gridGroup->hide();
+		}
+	}
 
 }
 
