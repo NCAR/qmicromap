@@ -11,8 +11,8 @@
 #include "QMicroMapTest.h"
 
 int main(int argc, char** argv) {
-	if (argc != 6) {
-		std::cerr <<"usage: " << argv[0] << " db_path xmin ymin xmax ymax" << std::endl;
+	if (argc != 2 && argc != 6) {
+		std::cerr <<"usage: " << argv[0] << " db_path [xmin ymin xmax ymax]" << std::endl;
 		exit(1);
 	}
 
@@ -20,10 +20,17 @@ int main(int argc, char** argv) {
 	std::string dbpath = std::string(argv[1]);
 	SpatiaLiteDB db(dbpath);
 
-	double xmin = atof(argv[2]);
-	double ymin = atof(argv[3]);
-	double xmax = atof(argv[4]);
-	double ymax = atof(argv[5]);
+	double xmin = -180.0;
+	double ymin =  -90.0;
+	double xmax = 180.0;
+	double ymax =  90.0;
+
+	if (argc == 6) {
+		xmin = atof(argv[2]);
+		ymin = atof(argv[3]);
+		xmax = atof(argv[4]);
+		ymax = atof(argv[5]);
+	}
 
 	// Create a Qt application
 	QApplication app(argc, argv);
