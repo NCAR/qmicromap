@@ -8,6 +8,10 @@
 #include <iostream>
 #include <algorithm>
 
+void printTransform(QTransform t) {
+	std::cout << "m11:" << t.m11() << " m22:" << t.m22() << std::endl;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 Feature::Feature(std::string tableName, std::string baseColor, std::string nameColumn) :
 	_tableName(tableName), _name(tableName), _baseColor(baseColor), _nameColumn(nameColumn) {
@@ -63,13 +67,11 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
+	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax-_xmin, _ymax-_ymin);
+
 	// create the scene to hold our graphics items
 	_scene = new QGraphicsScene(this);
-	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 	setScene(_scene);
-
-	QRectF r = sceneRect();
-	std::cout << "r:" << r.x() << " " << r.y() << " " << r.x() + r.width() << " " << r.y() + r.height() << std::endl;
 
 	// set the background color
 	setBackgroundBrush(QBrush(backgroundColor.c_str()));
@@ -90,20 +92,27 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	// draw the features
 	drawFeatures();
 
-	r = _scene->itemsBoundingRect();
-	std::cout << "items bounding rect:" << r.x() << " " << r.y() << " " << r.x() + r.width() << " " << r.y() + r.height() << std::endl;
-	QRectF rect;
-	rect = mapToScene(viewport()->geometry()).boundingRect();
-	std::cout << "viewport:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
-	fitInView(r);
-	rect = mapToScene(viewport()->geometry()).boundingRect();
-	std::cout << "viewport:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
-
 	_scene->addItem(_pointsGroup);
 	_pointsGroup->hide();
 
 	_gridGroup = new QGraphicsItemGroup;
 	_scene->addItem(_gridGroup);
+
+	QRectF rect;
+	rect = mapToScene(viewport()->geometry()).boundingRect();
+	std::cout << "viewport before fitInView:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+	_scene->setSceneRect(_scene->itemsBoundingRect());
+	fitInView(scene_rect);
+	rect = mapToScene(viewport()->geometry()).boundingRect();
+	std::cout << "viewport after fitInView:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
+	rect = mapToScene(viewport()->geometry()).boundingRect();
+	std::cout << "viewport after setSceneRect:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+
+	printTransform(transform());
+
+	std::cout << _scene->items().size() << " items" << std::endl;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -383,6 +392,8 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 
 	// draw the grid
 	drawGrid();
+
+	printTransform(transform());
 
 }
 

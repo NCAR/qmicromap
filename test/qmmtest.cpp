@@ -11,6 +11,7 @@
 #include <vector>
 #include "QMicroMapTest.h"
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void options(int argc, char**argv,
 		std::string& dbpath,
 		double& xmin,
@@ -50,6 +51,7 @@ void options(int argc, char**argv,
 			dbpath = std::string(optarg);
 			break;
 		default:
+			err = true;
 			break;
 		}
 	}
@@ -64,6 +66,7 @@ void options(int argc, char**argv,
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char** argv) {
 
 	std::string dbpath;
@@ -72,14 +75,14 @@ int main(int argc, char** argv) {
 	double xmax = 180.0;
 	double ymax =  90.0;
 
+	// Create the Qt application
+	QApplication app(argc, argv);
+
+	// get the options
 	options(argc, argv, dbpath, xmin, ymin, xmax, ymax);
 
 	// get the database
 	SpatiaLiteDB db(dbpath);
-
-
-	// Create a Qt application
-	QApplication app(argc, argv);
 
 	QMicroMapTest map(db, xmin, ymin, xmax, ymax, "lightblue");
 	map.resize(1000,800);
