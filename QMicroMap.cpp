@@ -59,7 +59,7 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 		double ymax, std::string backgroundColor, QWidget* parent) :
 	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
 			_ymax(ymax), _pointsGroup(0), _gridOn(true), _gridGroup(0),
-			_gridDelta(0), _mouseMode(MOUSE_PAN), _rubberBand(0) {
+			_gridDelta(0), _mouseMode(MOUSE_ZOOM), _rubberBand(0) {
 
 	// determine what features we will use from this database
 	selectFeatures();

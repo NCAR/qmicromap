@@ -108,7 +108,7 @@
            <string>Pan</string>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -116,6 +116,9 @@
          <widget class="QRadioButton" name="mouseZoom">
           <property name="text">
            <string>Zoom</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
