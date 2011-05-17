@@ -9,6 +9,9 @@
 #define QMICROMAP_H_
 
 #include <QtGui>
+#include <stack>
+#include <vector>
+#include <string>
 #include "SpatiaLiteDB.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -65,6 +68,7 @@ public:
 public slots:
 	void labels(int on);
 	void grid(int on);
+	void reset();
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);
@@ -89,6 +93,8 @@ protected:
 	SpatiaLiteDB& _db;
 	///
 	QGraphicsScene* _scene;
+	///
+	std::stack<QRectF> _zoomRectStack;
 	///
 	double _xmin;
 	///

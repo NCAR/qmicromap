@@ -79,13 +79,12 @@ _zoomInc(0.1)
 
 
 	// connect signals
-	connect(zoomIn,    SIGNAL(released()),        this, SLOT(zoomInSlot()));
-	connect(zoomOut,   SIGNAL(released()),        this, SLOT(zoomOutSlot()));
 	connect(labels,    SIGNAL(stateChanged(int)), _mm,  SLOT(labels(int)));
 	connect(grid,      SIGNAL(stateChanged(int)), _mm,  SLOT(grid(int)));
 	connect(obs,       SIGNAL(stateChanged(int)), this, SLOT(obsSlot(int)));
 	connect(mousePan,  SIGNAL(toggled(bool)),     this, SLOT(mouseSlot(bool)));
 	connect(mouseZoom, SIGNAL(toggled(bool)),     this, SLOT(mouseSlot(bool)));
+	connect(reset,     SIGNAL(released()),        _mm,  SLOT(reset()));
 
 }
 
@@ -104,16 +103,6 @@ void QMicroMapTest::mouseSlot(bool b) {
 		_mm->setMouseMode(QMicroMap::MOUSE_ZOOM);
 	}
 
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMapTest::zoomInSlot() {
-	_mm->scale(1.0+_zoomInc, 1.0+_zoomInc);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMapTest::zoomOutSlot() {
-	_mm->scale(1.0/(1.0+_zoomInc), 1.0/(1.0+_zoomInc));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

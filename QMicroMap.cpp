@@ -68,8 +68,10 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	// the rendering. Neither was verified by my testing.
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
-	//
+	// Allows the mouse events to pan the display
 	setDragMode(QGraphicsView::ScrollHandDrag);
+
+	setCursor(Qt::ArrowCursor);
 
 	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
@@ -102,6 +104,8 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_scene->setSceneRect(_scene->itemsBoundingRect());
 
 	fitInView(scene_rect);
+
+	_zoomRectStack.push(scene_rect);
 
 	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
@@ -401,6 +405,8 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 void QMicroMap::mousePressEvent(QMouseEvent *event) {
 
 	if (_mouseMode != MOUSE_ZOOM) {
+		// mouse press on panning.
+		setCursor(Qt::ClosedHandCursor);
 		QGraphicsView::mousePressEvent(event);
 		return;
 	}
@@ -410,6 +416,7 @@ void QMicroMap::mousePressEvent(QMouseEvent *event) {
 		_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 	_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
 	_rubberBand->show();
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -427,7 +434,11 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 
 	if (event->button() == Qt::RightButton) {
-		std::cout << "unzoom" << std::endl;
+		if (_zoomRectStack.size() > 1) {
+			_zoomRectStack.pop();
+			QRectF scenerect = _zoomRectStack.top();
+			fitInView(scenerect);
+		}
 		return;
 	}
 
@@ -437,17 +448,28 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			_rubberBand->hide();
 
 			QRect bandrect = _rubberBand->geometry();
+			double bandh = bandrect.height();
+			double bandw = bandrect.width();
+			double viewh = viewport()->height();
+			double vieww = viewport()->width();
 
-			QRectF scenerect = mapToScene(bandrect).boundingRect();
+			// make sure that the user has selected at least 5 percent of the scene
+			// in both x and y directions.
+			if ((bandh / viewh > 0.05) && (bandw / vieww > 0.05)) {
 
-			std::cout << scenerect.left() << "," << scenerect.bottom() << "  "
-					<< scenerect.right() << "," << scenerect.top() << std::endl;
+				QRectF scenerect = mapToScene(bandrect).boundingRect();
 
-			fitInView(scenerect);
+				fitInView(scenerect);
+
+				_zoomRectStack.push(scenerect);
+			}
+
 			return;
 		}
 	}
 
+	// mouse release on panning
+	setCursor(Qt::OpenHandCursor);
 	QGraphicsView::mouseReleaseEvent(event);
 	return;
 
@@ -456,9 +478,27 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::setMouseMode(MOUSE_MODE mode) {
 	_mouseMode = mode;
+	switch (_mouseMode) {
+	case MOUSE_PAN:
+		setCursor(Qt::OpenHandCursor);
+		break;
+	case MOUSE_ZOOM:
+		setCursor(Qt::ArrowCursor);
+		break;
+	default:
+		break;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::reset() {
+	while (_zoomRectStack.size() > 1) {
+		_zoomRectStack.pop();
+	}
+
+	QRectF scenerect = _zoomRectStack.top();
+	fitInView(scenerect);
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////
