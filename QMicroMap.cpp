@@ -13,8 +13,10 @@ void printTransform(QTransform t) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-Feature::Feature(std::string tableName, std::string baseColor, std::string nameColumn) :
-	_tableName(tableName), _name(tableName), _baseColor(baseColor), _nameColumn(nameColumn) {
+Feature::Feature(std::string tableName, std::string baseColor,
+		std::string nameColumn) :
+	_tableName(tableName), _name(tableName), _baseColor(baseColor),
+			_nameColumn(nameColumn) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +34,8 @@ PointFeature::~PointFeature() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-LineFeature::LineFeature(std::string tableName, std::string baseColor, std::string nameColumn) :
+LineFeature::LineFeature(std::string tableName, std::string baseColor,
+		std::string nameColumn) :
 	Feature(tableName, baseColor, nameColumn) {
 }
 
@@ -55,19 +58,20 @@ PolygonFeature::~PolygonFeature() {
 QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 		double ymax, std::string backgroundColor, QWidget* parent) :
 	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
-			_ymax(ymax),
-			_pointsGroup(0),
-			_gridOn(true),
-			_gridGroup(0),
-			_gridDelta(0)
-{
+			_ymax(ymax), _pointsGroup(0), _gridOn(true), _gridGroup(0),
+			_gridDelta(0), _mouseMode(MOUSE_PAN), _rubberBand(0) {
 
 	// determine what features we will use from this database
 	selectFeatures();
 
+	// Some say that antaliasing is a performance hit, and that it doesn't improver
+	// the rendering. Neither was verified by my testing.
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
-	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax-_xmin, _ymax-_ymin);
+	//
+	setDragMode(QGraphicsView::ScrollHandDrag);
+
+	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
 	// create the scene to hold our graphics items
 	_scene = new QGraphicsScene(this);
@@ -84,9 +88,6 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	QMatrix m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
 	QGraphicsView::setMatrix(m);
 
-	// Lend me a hand
-	setCursor(Qt::OpenHandCursor);
-
 	_pointsGroup = new QGraphicsItemGroup;
 
 	// draw the features
@@ -98,20 +99,13 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_gridGroup = new QGraphicsItemGroup;
 	_scene->addItem(_gridGroup);
 
-	QRectF rect;
-	rect = mapToScene(viewport()->geometry()).boundingRect();
-	std::cout << "viewport before fitInView:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
 	_scene->setSceneRect(_scene->itemsBoundingRect());
+
 	fitInView(scene_rect);
-	rect = mapToScene(viewport()->geometry()).boundingRect();
-	std::cout << "viewport after fitInView:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
+
 	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
-	rect = mapToScene(viewport()->geometry()).boundingRect();
-	std::cout << "viewport after setSceneRect:" << rect.x() << " " << rect.y() << " " << rect.x() + rect.width() << " " << rect.y() + rect.height() << std::endl;
 
 	printTransform(transform());
-
-	std::cout << _scene->items().size() << " items" << std::endl;
 
 }
 
@@ -132,9 +126,13 @@ void QMicroMap::selectFeatures() {
 			"admin_1_states_provinces_lines_shp", "grey"));
 	all_features.push_back(new PolygonFeature("lakes", "lightblue", "blue"));
 	all_features.push_back(new LineFeature("rivers_lake_centerlines", "blue"));
-	all_features.push_back(new PointFeature("geography_regions_points","yellow", "brown", "Name"));
-	all_features.push_back(new PointFeature("geography_regions_elevation_points", "lightgreen", "green", "Name"));
-	all_features.push_back(new PointFeature("populated_places", "red", "black", "Name"));
+	all_features.push_back(new PointFeature("geography_regions_points",
+			"yellow", "brown", "Name"));
+	all_features.push_back(
+			new PointFeature("geography_regions_elevation_points",
+					"lightgreen", "green", "Name"));
+	all_features.push_back(new PointFeature("populated_places", "red", "black",
+			"Name"));
 	all_features.push_back(new LineFeature("geographic_lines", "yellow"));
 	all_features.push_back(new LineFeature("coastline", "red"));
 
@@ -176,7 +174,6 @@ void QMicroMap::grid(int on) {
 	}
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::scale(qreal sx, qreal sy) {
 
@@ -202,11 +199,11 @@ void QMicroMap::drawFeatures() {
 
 		// query the table
 		try {
-			_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax, nameColumn);
+			_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax,
+					nameColumn);
 		} catch (std::string error) {
 			std::cout << error << std::endl;
 		}
-
 
 		SpatiaLiteDB::PointList points = _db.points();
 		SpatiaLiteDB::LinestringList linestrings = _db.linestrings();
@@ -254,7 +251,8 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt, QGraphicsItemGroup* group) {
+void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt,
+		QGraphicsItemGroup* group) {
 
 	PointFeature* pfeature = dynamic_cast<PointFeature*> (feature);
 	if (!pfeature) {
@@ -282,7 +280,8 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt, QGraphicsIt
 
 	std::string label = pt._label;
 	if (label.size()) {
-		QGraphicsSimpleTextItem* litem = new QGraphicsSimpleTextItem(label.c_str(), group);
+		QGraphicsSimpleTextItem* litem = new QGraphicsSimpleTextItem(
+				label.c_str(), group);
 		litem->setPos(pt._x, pt._y);
 		litem->setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 		litem->setFont(QFont("Helvetica", 12));
@@ -322,7 +321,6 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawGrid() {
-
 
 	// get the current height of the viewport, in degrees.
 	QRectF rect = mapToScene(viewport()->geometry()).boundingRect();
@@ -364,12 +362,14 @@ void QMicroMap::drawGrid() {
 		// create the new grid
 		QPen pen("grey");
 		for (double x = _xmin; x <= _xmax; x += _gridDelta) {
-			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, _ymin), QPointF(x, _ymax)));
+			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x,
+					_ymin), QPointF(x, _ymax)));
 			line->setPen(pen);
 			_gridGroup->addToGroup(line);
 		}
 		for (double y = _ymin; y <= _ymax; y += _gridDelta) {
-			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(_xmin, y), QPointF(_xmax, y)));
+			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(
+					_xmin, y), QPointF(_xmax, y)));
 			line->setPen(pen);
 			_gridGroup->addToGroup(line);
 		}
@@ -398,88 +398,56 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::mousePressEvent(QMouseEvent* event) {
-	//For panning the view
-	_lastPanPoint = event->pos();
-	setCursor(Qt::ClosedHandCursor);
-}
+void QMicroMap::mousePressEvent(QMouseEvent *event) {
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::mouseReleaseEvent(QMouseEvent* event) {
-	setCursor(Qt::OpenHandCursor);
-	_lastPanPoint = QPoint();
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::mouseMoveEvent(QMouseEvent* event) {
-	if (!_lastPanPoint.isNull()) {
-		//Get how much we panned
-		QPointF delta = mapToScene(_lastPanPoint) - mapToScene(event->pos());
-		_lastPanPoint = event->pos();
-
-		//Update the center ie. do the pan
-		setCenter(getCenter() + delta);
-	}
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Sets the current centerpoint.  Also updates the scene's center point.
- * Unlike centerOn, which has no way of getting the floating point center
- * back, SetCenter() stores the center point.  It also handles the special
- * sidebar case.  This function will claim the centerPoint to sceneRec ie.
- * the centerPoint must be within the sceneRec.
- */
-//Set the current centerpoint in the
-void QMicroMap::setCenter(const QPointF& centerPoint) {
-	//Get the rectangle of the visible area in scene coords
-	QRectF visibleArea = mapToScene(rect()).boundingRect();
-
-	//Get the scene area
-	QRectF sceneBounds = sceneRect();
-
-	double boundX = visibleArea.width() / 2.0;
-	double boundY = visibleArea.height() / 2.0;
-	double boundWidth = sceneBounds.width() - 2.0 * boundX;
-	double boundHeight = sceneBounds.height() - 2.0 * boundY;
-
-	//The max boundary that the centerPoint can be to
-	QRectF bounds(boundX, boundY, boundWidth, boundHeight);
-
-	if (bounds.contains(centerPoint)) {
-		//We are within the bounds
-		_currentCenterPoint = centerPoint;
-	} else {
-		//We need to clamp or use the center of the screen
-		if (visibleArea.contains(sceneBounds)) {
-			//Use the center of scene ie. we can see the whole scene
-			_currentCenterPoint = sceneBounds.center();
-		} else {
-
-			_currentCenterPoint = centerPoint;
-
-			//We need to clamp the center. The centerPoint is too large
-			if (centerPoint.x() > bounds.x() + bounds.width()) {
-				_currentCenterPoint.setX(bounds.x() + bounds.width());
-			} else if (centerPoint.x() < bounds.x()) {
-				_currentCenterPoint.setX(bounds.x());
-			}
-
-			if (centerPoint.y() > bounds.y() + bounds.height()) {
-				_currentCenterPoint.setY(bounds.y() + bounds.height());
-			} else if (centerPoint.y() < bounds.y()) {
-				_currentCenterPoint.setY(bounds.y());
-			}
-
-		}
+	if (_mouseMode != MOUSE_ZOOM) {
+		QGraphicsView::mousePressEvent(event);
+		return;
 	}
 
-	//Update the scrollbars
-	centerOn(_currentCenterPoint);
+	_rbOrigin = event->pos();
+	if (!_rubberBand)
+		_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+	_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
+	_rubberBand->show();
 }
 
-QPointF QMicroMap::getCenter() {
-	return _currentCenterPoint;
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
+
+	if (_mouseMode != MOUSE_ZOOM) {
+		QGraphicsView::mouseMoveEvent(event);
+		return;
+	}
+
+	_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
+
+	if (_mouseMode != MOUSE_ZOOM) {
+		QGraphicsView::mouseReleaseEvent(event);
+		return;
+	}
+
+	_rubberBand->hide();
+
+	QRect bandrect = _rubberBand->geometry();
+
+	QRectF scenerect = mapToScene(bandrect).boundingRect();
+
+	//std::cout << scenerect.left() << "," << scenerect.bottom()
+	//		<< "  " << scenerect.right() << "," << scenerect.top() << std::endl;
+
+	fitInView(scenerect);
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::setMouseMode(MOUSE_MODE mode) {
+	_mouseMode = mode;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

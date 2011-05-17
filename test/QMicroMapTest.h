@@ -29,6 +29,7 @@ public slots:
 	void zoomInSlot();
 	void zoomOutSlot();
 	void obsSlot(int);
+	void mouseSlot(bool);
 
 protected:
 	void zoom(double deltax, double deltay);

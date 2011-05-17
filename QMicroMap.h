@@ -47,6 +47,8 @@ class QMicroMap: public QGraphicsView {
 	Q_OBJECT
 
 public:
+	enum MOUSE_MODE  {MOUSE_PAN, MOUSE_ZOOM};
+
 	QMicroMap(SpatiaLiteDB& db,
 			double xmin,
 			double ymin,
@@ -55,6 +57,7 @@ public:
 			std::string backGroundColor = "white",
 			QWidget* parent = 0);
 	virtual ~QMicroMap();
+	void setMouseMode(MOUSE_MODE mode);
     /// Override the scale() function so that we can redraw the
     /// the grid when zooming is effected through scaling.
     virtual void scale(qreal sx, qreal sy);
@@ -65,9 +68,6 @@ public slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent* event);
-    //Set the current centerpoint in the
-    void setCenter(const QPointF& centerPoint);
-    QPointF getCenter();
     void mousePressEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
@@ -99,9 +99,6 @@ protected:
 	double _ymax;
 	///
 	std::vector<Feature*> _features;
-	QPoint _lastPanPoint;
-    //Holds the current centerpoint for the view, used for panning and zooming
-    QPointF _currentCenterPoint;
     ///
     QGraphicsItemGroup* _pointsGroup;
     ///
@@ -110,7 +107,9 @@ protected:
     QGraphicsItemGroup* _gridGroup;
     /// The current grid spacing, in degrees.
     double _gridDelta;
-
+    MOUSE_MODE _mouseMode;
+    QRubberBand* _rubberBand;
+    QPoint _rbOrigin;
 };
 
 #endif /* QMICROMAP_H_ */
