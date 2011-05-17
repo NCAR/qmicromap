@@ -426,22 +426,30 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 
-	if (_mouseMode != MOUSE_ZOOM) {
-		QGraphicsView::mouseReleaseEvent(event);
+	if (event->button() == Qt::RightButton) {
+		std::cout << "unzoom" << std::endl;
 		return;
 	}
 
-	_rubberBand->hide();
+	if (event->button() == Qt::LeftButton) {
+		if (_mouseMode == MOUSE_ZOOM) {
 
-	QRect bandrect = _rubberBand->geometry();
+			_rubberBand->hide();
 
-	QRectF scenerect = mapToScene(bandrect).boundingRect();
+			QRect bandrect = _rubberBand->geometry();
 
-	//std::cout << scenerect.left() << "," << scenerect.bottom()
-	//		<< "  " << scenerect.right() << "," << scenerect.top() << std::endl;
+			QRectF scenerect = mapToScene(bandrect).boundingRect();
 
-	fitInView(scenerect);
+			std::cout << scenerect.left() << "," << scenerect.bottom() << "  "
+					<< scenerect.right() << "," << scenerect.top() << std::endl;
 
+			fitInView(scenerect);
+			return;
+		}
+	}
+
+	QGraphicsView::mouseReleaseEvent(event);
+	return;
 
 }
 
