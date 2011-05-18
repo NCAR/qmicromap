@@ -79,12 +79,13 @@ _zoomInc(0.1)
 
 
 	// connect signals
-	connect(labels,    SIGNAL(stateChanged(int)), _mm,  SLOT(labels(int)));
-	connect(grid,      SIGNAL(stateChanged(int)), _mm,  SLOT(grid(int)));
-	connect(obs,       SIGNAL(stateChanged(int)), this, SLOT(obsSlot(int)));
-	connect(mousePan,  SIGNAL(toggled(bool)),     this, SLOT(mouseSlot(bool)));
-	connect(mouseZoom, SIGNAL(toggled(bool)),     this, SLOT(mouseSlot(bool)));
-	connect(reset,     SIGNAL(released()),        _mm,  SLOT(reset()));
+	connect(labels,    SIGNAL(stateChanged(int)),                _mm,  SLOT(labels(int)));
+	connect(grid,      SIGNAL(stateChanged(int)),                _mm,  SLOT(grid(int)));
+	connect(obs,       SIGNAL(stateChanged(int)),                this, SLOT(obsSlot(int)));
+	connect(mousePan,  SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
+	connect(mouseZoom, SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
+	connect(reset,     SIGNAL(released()),                       _mm,  SLOT(reset()));
+	connect(_mm,       SIGNAL(mouseMode(QMicroMap::MOUSE_MODE)), this, SLOT(mouseModeSlot(QMicroMap::MOUSE_MODE)));
 
 }
 
@@ -103,6 +104,18 @@ void QMicroMapTest::mouseSlot(bool b) {
 		_mm->setMouseMode(QMicroMap::MOUSE_ZOOM);
 	}
 
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMapTest::mouseModeSlot(QMicroMap::MOUSE_MODE mode) {
+
+	if (mode == QMicroMap::MOUSE_PAN) {
+		mousePan->setChecked(true);
+		mouseZoom->setChecked(false);
+	} else {
+		mousePan->setChecked(false);
+		mouseZoom->setChecked(true);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

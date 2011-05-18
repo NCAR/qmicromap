@@ -28,6 +28,7 @@ public:
 public slots:
 	void obsSlot(int);
 	void mouseSlot(bool);
+	void mouseModeSlot(QMicroMap::MOUSE_MODE);
 
 protected:
 	QMicroMap* _mm;

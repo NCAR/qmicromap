@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 void printTransform(QTransform t) {
 	std::cout << "m11:" << t.m11() << " m22:" << t.m22() << std::endl;
 }
@@ -69,9 +70,9 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
 
 	// Allows the mouse events to pan the display
-	setDragMode(QGraphicsView::ScrollHandDrag);
+	setDragMode(QGraphicsView::NoDrag);
 
-	setCursor(Qt::ArrowCursor);
+	setMouseMode(MOUSE_ZOOM);
 
 	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
@@ -108,8 +109,6 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_zoomRectStack.push(scene_rect);
 
 	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
-
-	printTransform(transform());
 
 }
 
@@ -397,26 +396,21 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 	// draw the grid
 	drawGrid();
 
-	printTransform(transform());
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mousePressEvent(QMouseEvent *event) {
 
-	if (_mouseMode != MOUSE_ZOOM) {
+	if (_mouseMode == MOUSE_PAN) {
 		// mouse press on panning.
-		setCursor(Qt::ClosedHandCursor);
 		QGraphicsView::mousePressEvent(event);
-		return;
+	} else {
+		_rbOrigin = event->pos();
+		if (!_rubberBand)
+			_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+		_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
+		_rubberBand->show();
 	}
-
-	_rbOrigin = event->pos();
-	if (!_rubberBand)
-		_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-	_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
-	_rubberBand->show();
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,9 +419,10 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 	if (_mouseMode != MOUSE_ZOOM) {
 		QGraphicsView::mouseMoveEvent(event);
 		return;
+	} else {
+		_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
+		event->accept();
 	}
-
-	_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -444,9 +439,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 
 	if (event->button() == Qt::LeftButton) {
 		if (_mouseMode == MOUSE_ZOOM) {
-
 			_rubberBand->hide();
-
 			QRect bandrect = _rubberBand->geometry();
 			double bandh = bandrect.height();
 			double bandw = bandrect.width();
@@ -456,21 +449,17 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			// make sure that the user has selected at least 5 percent of the scene
 			// in both x and y directions.
 			if ((bandh / viewh > 0.05) && (bandw / vieww > 0.05)) {
-
 				QRectF scenerect = mapToScene(bandrect).boundingRect();
-
 				fitInView(scenerect);
-
 				_zoomRectStack.push(scenerect);
 			}
+		} else {
 
-			return;
+			// mouse release on panning
+			QGraphicsView::mouseReleaseEvent(event);
 		}
 	}
 
-	// mouse release on panning
-	setCursor(Qt::OpenHandCursor);
-	QGraphicsView::mouseReleaseEvent(event);
 	return;
 
 }
@@ -480,14 +469,30 @@ void QMicroMap::setMouseMode(MOUSE_MODE mode) {
 	_mouseMode = mode;
 	switch (_mouseMode) {
 	case MOUSE_PAN:
+		setDragMode(QGraphicsView::ScrollHandDrag);
 		setCursor(Qt::OpenHandCursor);
 		break;
 	case MOUSE_ZOOM:
+		setDragMode(QGraphicsView::NoDrag);
 		setCursor(Qt::ArrowCursor);
 		break;
 	default:
 		break;
 	}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::mouseDoubleClickEvent (QMouseEvent * event) {
+
+	if (_mouseMode == MOUSE_PAN) {
+		setMouseMode(MOUSE_ZOOM);
+	} else {
+		setMouseMode(MOUSE_PAN);
+	}
+
+	emit mouseMode(_mouseMode);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

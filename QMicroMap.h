@@ -70,11 +70,15 @@ public slots:
 	void grid(int on);
 	void reset();
 
+signals:
+	void mouseMode(QMicroMap::MOUSE_MODE);
+
 protected:
     virtual void resizeEvent(QResizeEvent* event);
-    void mousePressEvent(QMouseEvent* event);
-    void mouseReleaseEvent(QMouseEvent* event);
-    void mouseMoveEvent(QMouseEvent* event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
+    virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void mouseDoubleClickEvent (QMouseEvent * event);
     /// Create the features that are available in the database. These
     /// will be saved in _features.
     void selectFeatures();
