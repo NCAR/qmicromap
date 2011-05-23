@@ -54,10 +54,10 @@ env.Default(html)
 thisdir = env.Dir('.').srcnode().abspath
 
 def qmicromap(env):
+    env.AppendLibrary('qmicromap')
     env.Require(tools)
     env.EnableQt4Modules(qt4Modules)
     env.AppendUnique(CPPPATH   =[thisdir,])
-    env.AppendLibrary('qmicromap')
     env.AppendDoxref('QMicroMap')    
     env.Replace(CCFLAGS=['-g','-O2'])
     if env['PLATFORM'] == 'darwin':
