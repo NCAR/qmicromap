@@ -75,7 +75,13 @@ int main(int argc, char** argv) {
 	double xmax = 180.0;
 	double ymax =  90.0;
 
-	// Create the Qt application
+#if defined(Q_WS_X11)
+	// use the qt raster sstem on X11, otherwise the
+	// graphics are a dog!
+    QApplication::setGraphicsSystem("raster");
+#endif
+
+    // Create the Qt application
 	QApplication app(argc, argv);
 
 	// get the options
