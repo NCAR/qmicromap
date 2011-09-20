@@ -5,7 +5,6 @@
  *      Author: martinc
  */
 #include "QMicroMapTest.h"
-#include <iostream>
 #include "QStationModelGraphicsItem.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,13 +85,15 @@ _zoomInc(0.1)
 	_stationGroup->setHandlesChildEvents(false);
 
 	// connect signals
-	connect(labels,    SIGNAL(stateChanged(int)),                _mm,  SLOT(labels(int)));
-	connect(grid,      SIGNAL(stateChanged(int)),                _mm,  SLOT(grid(int)));
-	connect(obs,       SIGNAL(stateChanged(int)),                this, SLOT(obsSlot(int)));
-	connect(mousePan,  SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
-	connect(mouseZoom, SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
-	connect(reset,     SIGNAL(released()),                       _mm,  SLOT(reset()));
-	connect(_mm,       SIGNAL(mouseMode(QMicroMap::MOUSE_MODE)), this, SLOT(mouseModeSlot(QMicroMap::MOUSE_MODE)));
+	connect(labels,      SIGNAL(stateChanged(int)),                _mm,  SLOT(labels(int)));
+	connect(grid,        SIGNAL(stateChanged(int)),                _mm,  SLOT(grid(int)));
+	connect(reset,       SIGNAL(released()),                       _mm,  SLOT(reset()));
+
+	connect(obs,         SIGNAL(stateChanged(int)),                this, SLOT(obsSlot(int)));
+	connect(mousePan,    SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
+	connect(mouseZoom,   SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
+	connect(mouseSelect, SIGNAL(toggled(bool)),                    this, SLOT(mouseSlot(bool)));
+	connect(_mm,         SIGNAL(mouseMode(QMicroMap::MOUSE_MODE)), this, SLOT(mouseModeSlot(QMicroMap::MOUSE_MODE)));
 
 }
 
