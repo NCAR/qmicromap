@@ -11,28 +11,34 @@
 #include <QtGui>
 #include <map>
 
-/// The QGraphicsItem::ItemIgnoresTransformations flag is set for
-/// this graphics item, which means that the internal coordinates are
-/// those of the viewport, which I believe are screen pixels. They
-/// are referenced to the zero origin of the item however. setPos() is
-/// used to set the position in the graphics scene.
+/// @brief A QGraphicsItem representation of the meterological station model.
+///
+/// A wind barb and text elements are rendered.
 ///
 /// There are four text elements that appear on the plot, depicting
 /// temperature, rh, pres (or height) and observation time.
 ///
+/// Because the wind barb can be pointing in any direction, an
+/// algorithm attempts to locate the text elements so that they are
+/// not overdrawn by the barb.
 /// The model is divided into eight sectors of equal angular width (45 degrees),
 /// numbered 0 through 7. The wind flag will appear in one of these sectors,
 /// based on the wind direction. The text elements will be rendered in
 /// four other sectors. A predefined map is used to specify, for a wind flag
 /// in a given sector, the sector that each of the four text elements is
 /// displayed in.
+///
+/// The QGraphicsItem::ItemIgnoresTransformations flag is set for
+/// this graphics item, which means that the internal coordinates are
+/// those of the viewport, which I believe are screen pixels. They
+/// are referenced to the zero origin of the item however. setPos() is
+/// used to set the position in the graphics scene.
 class QStationModelGraphicsItem: public QGraphicsItem
 {
-	/// TextSectors is a class which maps the text type to a chosen sector number.
-	/// More importantly, the coordinates and text justification for
-	/// that element are also defined in this class. The sector
-	/// numbers start at zero, and increase by one for each 45 degree
-	/// segment. Even though the wind direction is specified in
+	/// @brief TextSectors is a helper class which locates the texts so
+	/// that they don't interfere with the wind barb. A sector scheme
+	/// is used. The sector numbers start at zero, and increase by one for
+	/// each 45 degree segment. Even though the wind direction is specified in
 	/// meteorological coordinates, the sectors are numbered in an
 	/// increasing cartessian sense, with 0-45 degrees being sector
 	/// 0, 45-90 degrees is sector 1, etc.
@@ -46,29 +52,34 @@ class QStationModelGraphicsItem: public QGraphicsItem
 		TextSectors(double wdir, double offset);
 		/// Destructor
 		virtual ~TextSectors();
+		/// The sector occupied by the wind barb.
 		int _windSector;
+		/// The x coordinate of the sector occupied by each text type.
 		std::map<TEXT_TYPE, double> _x;
+		/// The y coordinate of the sector occupied by each text type.
 		std::map<TEXT_TYPE, double> _y;
 		/// The horizontal justification for this text
 		std::map<TEXT_TYPE, TEXT_JUST> _hjust;
 		/// The vertical justification for this text
 		std::map<TEXT_TYPE, TEXT_JUST> _vjust;
 	protected:
-		/// Create the x,y coordinates, based on the sector number.
+		/// Create the x,y coordinates for each text type. Figure out
+		/// how to avoid conflicting with the wind barb.
 		void createCoordinates();
 		/// The wind direction, in meteorlogical coordinates,
-		/// magnetic, pointing into the wind.
+		/// pointing into the wind.
 		double _wdir;
-		/// The offset of the text, along the radial
+		/// The offset of the text elements, along the radial.
 		double _offset;
 		/// The sector that this text type falls into.
 		std::map<TEXT_TYPE, int> _sector;
 	};
 
 public:
-	/// Location indicators
+	/// Text location indicators
 	enum TEXT_POS {N, NE, E, SE, S, SW, W, NW};
 
+	/// Constructor
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
 	/// @param x Y location in the QGraphicsscene coordinate system, typically latitude.
 	/// @param spdKnots Wind speed in knots.
@@ -80,7 +91,6 @@ public:
 	/// @param hh The hour time of observation.
 	/// @param mm The minute time of the observation.
 	/// @param scale The graphical size of the station model, in viewport coordinates.
-	/// @param parent The Qt object parent.
 	QStationModelGraphicsItem(
 			double x,
 			double y,
@@ -92,32 +102,26 @@ public:
 			bool isPres,
 			int hh,
 			int mm,
-			double scale,
-			QGraphicsItem* parent=0);
+			double scale);
+	/// Destructor
 	virtual ~QStationModelGraphicsItem();
+	/// Paint the station model.
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    /// Assign the text to a given sector.
+    /// @param pos The sector position indicator.
+    /// @param text The text which is assigned to this position.
     void setText(TEXT_POS pos, QString text);
 
 protected:
 	/// @return The station model bounding box.
     QRectF boundingRect() const;
-    /// There seems to be a bug in Qt, where the events are not propagated to
-    /// the graphics item if the item is a member of a graphics item group.
-    /// However the events are sent to the sceneEvent filter. Re-implement
-    /// sceneEvent(), and send the events of interest on to the event handlers/
-    /// @param event The event.
-    /// @return True if the event was handled, false otherwise.
-    bool sceneEvent(QEvent *event);
-    /// Handle the hover enter event.
-    /// @todo But what should we do?
+    /// Handle the hover enter event. Currently, no action is taken.
     /// @param event The event.
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event) ;
-    /// Handle the hover leave event.
-    /// @todo But what should we do?
+    /// Handle the hover leave event. Currently, no action is taken.
     /// @param event The event.
     void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) ;
-    /// Handle the mouse press event.
-    /// @todo But what should we do?
+    /// Handle the mouse press event. Currently, no action is taken.
     /// @param event The event.
     void mousePressEvent (QGraphicsSceneMouseEvent* event);
 	/// Draw a standard meteorological wind barb, representing the speed and direction of the
@@ -130,7 +134,9 @@ protected:
     /// is used to determine the location of each element.
     /// @param painter The painter to draw with.
     void drawTextFields(QPainter *painter);
-    /// render a single text field.
+    /// Render a single text field.
+    /// @param painter THe device to be drawn upon.
+    /// @param sectors
     /// @param typ The text type
     /// @param txt The text to be rendered.
     void drawTextField(QPainter* painter, TextSectors& sectors, TextSectors::TEXT_TYPE typ, QString txt);

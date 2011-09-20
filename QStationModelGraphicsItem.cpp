@@ -9,13 +9,32 @@
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QStationModelGraphicsItem::QStationModelGraphicsItem(double x, double y,
-		double spdKnots, double dirMet, double tDryC, double RH,
-		double presOrHeight, bool isPres, int hh, int mm, double scale,
-		QGraphicsItem* parent) :
-		QGraphicsItem(parent), _x(x), _y(y), _spdKnots(spdKnots), _dirMet(
-				dirMet), _tDryC(tDryC), _RH(RH), _presOrHeight(presOrHeight), _isPres(
-				isPres), _hh(hh), _mm(mm), _scale(scale), _aspectRatio(1.0) {
+QStationModelGraphicsItem::QStationModelGraphicsItem(
+		double x,
+		double y,
+		double spdKnots,
+		double dirMet,
+		double tDryC,
+		double RH,
+		double presOrHeight,
+		bool isPres,
+		int hh,
+		int mm,
+		double scale) :
+		QGraphicsItem(),
+		_x(x),
+		_y(y),
+		_spdKnots(spdKnots),
+		_dirMet(dirMet),
+		_tDryC(tDryC),
+		_RH(RH),
+		_presOrHeight(presOrHeight),
+		_isPres(isPres),
+		_hh(hh),
+		_mm(mm),
+		_scale(scale),
+		_aspectRatio(1.0) {
+
 	_text[N] = "";
 	_text[NE] = "";
 	_text[E] = "";
@@ -45,31 +64,12 @@ QStationModelGraphicsItem::~QStationModelGraphicsItem() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-bool QStationModelGraphicsItem::sceneEvent(QEvent *event) {
-	switch (event->type()) {
-
-	case QEvent::GraphicsSceneMousePress:
-		mousePressEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
-		break;
-
-	case QEvent::GraphicsSceneHoverEnter:
-		hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-		break;
-
-	case QEvent::GraphicsSceneHoverLeave:
-		hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
-		break;
-
-	default:
-		return (QGraphicsItem::sceneEvent(event));
-	}
-
-	return true;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::mousePressEvent(
 		QGraphicsSceneMouseEvent * event) {
+
+	// Event handling is just stubbed out here, until we find
+	// something useful to do with it.
+
 	std::cout << "mouse press " << event->scenePos().x() << _spdKnots
 			<< std::endl;
 	QGraphicsItem::mousePressEvent(event);
@@ -78,38 +78,33 @@ void QStationModelGraphicsItem::mousePressEvent(
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::hoverEnterEvent(
 		QGraphicsSceneHoverEvent * event) {
+
+	// Event handling is just stubbed out here, until we find
+	// something useful to do with it.
+
 	std::cout << "hover enter " << _spdKnots << std::endl;
+
 	QGraphicsItem::hoverEnterEvent(event);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::hoverLeaveEvent(
 		QGraphicsSceneHoverEvent * event) {
+
+	// Event handling is just stubbed out here, until we find
+	// something useful to do with it.
+
 	std::cout << " hover leave " << _spdKnots << std::endl;
 	QGraphicsItem::hoverEnterEvent(event);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QRectF QStationModelGraphicsItem::boundingRect() const {
+
 	QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
 
 	return r;
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- QPainterPath QStationModelGraphicsItem::shape() const {
- QPainterPath result;
-
- QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
-
- result.addRect(r);
-
- std::cout << __PRETTY_FUNCTION__ << " " << _spdKnots << std::endl;
-
- return result;
- }
- **/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::paint(QPainter *painter,
@@ -325,7 +320,8 @@ QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset) 
 	// determine the wind flag sector
 	_windSector = (int) (dir / 45.0);
 
-	// identify the sectors
+	// identify the text sectors that will not interfere
+	// with the wind sector.
 	switch (_windSector) {
 	case 1:
 	case 2:
@@ -372,7 +368,7 @@ QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset) 
 	_vjust[PHT] = BOTTOM;
 	_vjust[TIME] = TOP;
 
-	// compute the coordinates
+	// compute the coordinates for each text item
 	createCoordinates();
 }
 
@@ -399,6 +395,5 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates() {
 		// the Y coordinate is inverted, since Y runs from top of screen to bottom of screen
 		_y[*i] = -sin(angle) * _offset;
 
-		//std::cout << "wdir:" << _wdir << " wind sector:" << _windSector << " type:" << *i << " sector:" << _sector[*i] << " x:" << _x[*i] << "   y:" << _y[*i] << std::endl;
 	}
 }

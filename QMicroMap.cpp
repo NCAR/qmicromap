@@ -14,10 +14,15 @@ void printTransform(QTransform t) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-Feature::Feature(std::string tableName, std::string baseColor,
+Feature::Feature(
+		std::string tableName,
+		std::string baseColor,
+		std::string geometryName,
 		std::string nameColumn) :
-	_tableName(tableName), _name(tableName), _baseColor(baseColor),
-			_nameColumn(nameColumn) {
+	_tableName(tableName),
+	_baseColor(baseColor),
+	_geometryName(geometryName),
+	_nameColumn(nameColumn) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -25,9 +30,13 @@ Feature::~Feature() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-PointFeature::PointFeature(std::string tableName, std::string baseColor,
-		std::string edgeColor, std::string nameColumn) :
-	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
+PointFeature::PointFeature(
+		std::string tableName,
+		std::string baseColor,
+		std::string edgeColor,
+		std::string geometryName,
+		std::string nameColumn) :
+	Feature(tableName, baseColor, geometryName, nameColumn), _edgeColor(edgeColor) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,9 +44,12 @@ PointFeature::~PointFeature() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-LineFeature::LineFeature(std::string tableName, std::string baseColor,
+LineFeature::LineFeature(
+		std::string tableName,
+		std::string baseColor,
+		std::string geometryName,
 		std::string nameColumn) :
-	Feature(tableName, baseColor, nameColumn) {
+	Feature(tableName, baseColor, geometryName, nameColumn) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +57,13 @@ LineFeature::~LineFeature() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-PolygonFeature::PolygonFeature(std::string tableName, std::string baseColor,
-		std::string edgeColor, std::string nameColumn) :
-	Feature(tableName, baseColor, nameColumn), _edgeColor(edgeColor) {
+PolygonFeature::PolygonFeature(
+		std::string tableName,
+		std::string baseColor,
+		std::string edgeColor,
+		std::string geometryName,
+		std::string nameColumn) :
+	Feature(tableName, baseColor, geometryName, nameColumn), _edgeColor(edgeColor) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -125,40 +141,48 @@ QMicroMap::~QMicroMap() {
 void QMicroMap::selectFeatures() {
 
 	std::vector<Feature*> all_features;
-	all_features.push_back(new PolygonFeature("admin_0_countries", "beige",
-			"black"));
-	all_features.push_back(new LineFeature(
-			"admin_1_states_provinces_lines_shp", "grey"));
-	all_features.push_back(new PolygonFeature("lakes", "lightblue", "blue"));
-	all_features.push_back(new LineFeature("rivers_lake_centerlines", "blue"));
-	all_features.push_back(new PointFeature("geography_regions_points",
-			"yellow", "brown", "Name"));
+
+	// define the features that we hope are in the database. There is a good chance that
+	// they are not all avaiable.
 	all_features.push_back(
-			new PointFeature("geography_regions_elevation_points",
-					"lightgreen", "green", "Name"));
-	all_features.push_back(new PointFeature("populated_places", "red", "black",
-			"Name"));
-	all_features.push_back(new LineFeature("geographic_lines", "yellow"));
-	all_features.push_back(new LineFeature("coastline", "red"));
+			new PolygonFeature("admin_0_countries",               "beige",        "black"));
+	all_features.push_back(
+			new LineFeature("admin_1_states_provinces_lines_shp", "grey"));
+	all_features.push_back(
+			new PolygonFeature("lakes",                            "lightblue",   "blue"));
+	all_features.push_back(
+			new LineFeature("rivers_lake_centerlines",             "blue"));
+	all_features.push_back(
+			new PointFeature("geography_regions_points",            "yellow",     "brown", "Geometry", "Name"));
+	all_features.push_back(
+			new PointFeature("geography_regions_elevation_points",  "lightgreen", "green", "Geometry", "Name"));
+	all_features.push_back(
+			new PointFeature("populated_places",                    "red",        "black", "Geometry", "Name"));
+	all_features.push_back(
+			new LineFeature("geographic_lines",                     "yellow"));
+	all_features.push_back(
+			new LineFeature("coastline",                            "red"));
 
 	// get the names of tables containing geometry
 	std::vector < std::string > geo_tables;
 	geo_tables = _db.geometryTables();
 
-	// query the tables
-	for (std::vector<Feature*>::iterator feature = all_features.begin(); feature
-			!= all_features.end(); feature++) {
+	// query the tables, to verify that the feature is avaiable
+	for (std::vector<Feature*>::iterator feature = all_features.begin();
+			feature != all_features.end(); feature++) {
 
 		std::string table = (*feature)->_tableName;
 
-		std::vector<std::string>::iterator result = std::find(
-				geo_tables.begin(), geo_tables.end(), table);
+		// Make sure that the requested geometry feature exists in the database.
+		std::vector<std::string>::iterator result =
+				std::find(geo_tables.begin(), geo_tables.end(), table);
 		if (result == geo_tables.end()) {
 			// selected table not found in the existing tables
 			std::cerr << table << " not found" << std::endl;
 			delete *feature;
 			continue;
 		}
+		// Okay, it passed the test, so save it as one of the vetted features.
 		_features.push_back(*feature);
 	}
 
@@ -199,12 +223,15 @@ void QMicroMap::drawFeatures() {
 			!= _features.end(); feature++) {
 
 		std::string table = (*feature)->_tableName;
-		std::string geometryColumn = "Geometry";
+		std::string geometryColumn = (*feature)->_geometryName;
 		std::string nameColumn = (*feature)->_nameColumn;
 
 		// query the table
 		try {
-			_db.queryGeometry(table, "Geometry", _xmin, _ymin, _xmax, _ymax,
+			_db.queryGeometry(
+					table,
+					geometryColumn,
+					_xmin, _ymin, _xmax, _ymax,
 					nameColumn);
 		} catch (std::string error) {
 			std::cout << error << std::endl;
@@ -392,7 +419,7 @@ void QMicroMap::drawGrid() {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::resizeEvent(QResizeEvent* event) {
 
-	//Call the subclass resize
+	// Call the subclass resize
 	QGraphicsView::resizeEvent(event);
 
 	// draw the grid
@@ -424,21 +451,23 @@ void QMicroMap::mousePressEvent(QMouseEvent *event) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 
-	if (_mouseMode == MOUSE_SELECT) {
-		QGraphicsView::mouseMoveEvent(event);
-		return;
-	}
-
-	if (_mouseMode != MOUSE_ZOOM) {
-		QGraphicsView::mouseMoveEvent(event);
-		return;
-	} else {
+	switch (_mouseMode) {
+	case MOUSE_ZOOM:
 		if (!_rubberBand) {
 			_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 		}
 		_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
 		event->accept();
+		break;
+
+	case MOUSE_PAN:
+	case MOUSE_SELECT:
+		QGraphicsView::mouseMoveEvent(event);
+		break;
 	}
+
+	return;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -453,13 +482,10 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 		return;
 	}
 
-	if (_mouseMode == MOUSE_SELECT) {
-		QGraphicsView::mouseReleaseEvent(event);
-		return;
-	}
-
 	if (event->button() == Qt::LeftButton) {
-		if (_mouseMode == MOUSE_ZOOM) {
+		switch (_mouseMode) {
+		case MOUSE_ZOOM: {
+			// mouse release on zooming
 			if (!_rubberBand) {
 				_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 			}
@@ -477,10 +503,12 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 				fitInView(scenerect);
 				_zoomRectStack.push(scenerect);
 			}
-		} else {
-
-			// mouse release on panning
+			break;
+		}
+		case MOUSE_PAN:
+		case MOUSE_SELECT:
 			QGraphicsView::mouseReleaseEvent(event);
+			break;
 		}
 	}
 
@@ -542,10 +570,5 @@ void QMicroMap::reset() {
 	QRectF scenerect = _zoomRectStack.top();
 	fitInView(scenerect);
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
+
 /////////////////////////////////////////////////////////////////////////////////////////////////

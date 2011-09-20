@@ -80,6 +80,10 @@ _zoomInc(0.1)
 
 	// create the item group of stations
 	_stationGroup = _mm->scene()->createItemGroup(stationList);
+	// Allow events to be propagated to the children. Note that the Qt documentation
+	// for this is wrong; it states that the default is false, which is not true for
+	// a QGraphicsItemGroup.
+	_stationGroup->setHandlesChildEvents(false);
 
 	// connect signals
 	connect(labels,    SIGNAL(stateChanged(int)),                _mm,  SLOT(labels(int)));
