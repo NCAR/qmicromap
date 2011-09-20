@@ -37,6 +37,7 @@ QStationModelGraphicsItem.cpp
 headers = Split("""
 QMicroMap.h
 QStationModelGraphicsItem.h
+MicroMapOverview.h
 """)
 
 if env['PLATFORM'] == 'darwin':
