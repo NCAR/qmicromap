@@ -33,10 +33,10 @@ _zoomInc(0.1)
 	_mm = new QMicroMap(db, _xmin, _ymin, _xmax, _ymax, backgroundColor);
 	vb->addWidget(_mm);
 
-	// create the station group and add it to the scene.
-	_stationGroup = new QGraphicsItemGroup();
-	_mm->scene()->addItem(_stationGroup);
+	// collect a list of stations, which will e added to an item group
+	QList<QGraphicsItem*> stationList;
 
+	// create one leg of station models
 	double wspd = 45;
 	double wdir = 15;
 	double lon = -86;
@@ -57,9 +57,10 @@ _zoomInc(0.1)
 		mm += 3;
 		tdry -= 1.3;
 		presOrHeight -= 3;
-		_stationGroup->addToGroup(sm);
+		stationList.append(sm);
 	}
 
+	// create a seond leg of station models
 	wspd = 55;
 	wdir = 15;
 	lon = -85;
@@ -74,9 +75,11 @@ _zoomInc(0.1)
 		mm -= 3;
 		tdry += .8;
 		presOrHeight -= 3;
-		_stationGroup->addToGroup(sm);
+		stationList.append(sm);
 	}
 
+	// create the item group of stations
+	_stationGroup = _mm->scene()->createItemGroup(stationList);
 
 	// connect signals
 	connect(labels,    SIGNAL(stateChanged(int)),                _mm,  SLOT(labels(int)));
@@ -101,7 +104,13 @@ void QMicroMapTest::mouseSlot(bool b) {
 	if (mousePan->isChecked()) {
 		_mm->setMouseMode(QMicroMap::MOUSE_PAN);
 	} else {
-		_mm->setMouseMode(QMicroMap::MOUSE_ZOOM);
+		if (mouseZoom->isChecked()) {
+			_mm->setMouseMode(QMicroMap::MOUSE_ZOOM);
+		} else {
+			if (mouseSelect->isChecked()) {
+				_mm->setMouseMode(QMicroMap::MOUSE_SELECT);
+			}
+		}
 	}
 
 }
@@ -109,13 +118,24 @@ void QMicroMapTest::mouseSlot(bool b) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMapTest::mouseModeSlot(QMicroMap::MOUSE_MODE mode) {
 
-	if (mode == QMicroMap::MOUSE_PAN) {
+	switch (mode) {
+	case QMicroMap::MOUSE_PAN:
 		mousePan->setChecked(true);
 		mouseZoom->setChecked(false);
-	} else {
+		mouseSelect->setChecked(false);
+		break;
+	case QMicroMap::MOUSE_ZOOM:
 		mousePan->setChecked(false);
 		mouseZoom->setChecked(true);
+		mouseSelect->setChecked(false);
+		break;
+	case QMicroMap::MOUSE_SELECT:
+		mousePan->setChecked(false);
+		mouseZoom->setChecked(false);
+		mouseSelect->setChecked(true);
+		break;
 	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

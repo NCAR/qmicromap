@@ -50,7 +50,7 @@ class QMicroMap: public QGraphicsView {
 	Q_OBJECT
 
 public:
-	enum MOUSE_MODE  {MOUSE_PAN, MOUSE_ZOOM};
+	enum MOUSE_MODE  {MOUSE_SELECT, MOUSE_PAN, MOUSE_ZOOM};
 
 	QMicroMap(SpatiaLiteDB& db,
 			double xmin,

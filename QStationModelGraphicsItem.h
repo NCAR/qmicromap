@@ -15,20 +15,20 @@
 /// this graphics item, which means that the internal coordinates are
 /// those of the viewport, which I believe are screen pixels. They
 /// are referenced to the zero origin of the item however. setPos() is
-/// used to set the position in the ggraphics scene.
+/// used to set the position in the graphics scene.
 ///
-/// There are four text elements that apper on the plot, depicting
+/// There are four text elements that appear on the plot, depicting
 /// temperature, rh, pres (or height) and observation time.
 ///
-/// The model is dvided into eight sectors of equal angular width (45 degrees),
-/// numbered 0 through 7. The wind flag will appeare in one of these sectors,
+/// The model is divided into eight sectors of equal angular width (45 degrees),
+/// numbered 0 through 7. The wind flag will appear in one of these sectors,
 /// based on the wind direction. The text elements will be rendered in
 /// four other sectors. A predefined map is used to specify, for a wind flag
 /// in a given sector, the sector that each of the four text elements is
 /// displayed in.
 class QStationModelGraphicsItem: public QGraphicsItem
 {
-	/// A class which maps the text type to a chosen sector number.
+	/// TextSectors is a class which maps the text type to a chosen sector number.
 	/// More importantly, the coordinates and text justification for
 	/// that element are also defined in this class. The sector
 	/// numbers start at zero, and increase by one for each 45 degree
@@ -95,12 +95,32 @@ public:
 			double scale,
 			QGraphicsItem* parent=0);
 	virtual ~QStationModelGraphicsItem();
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
     void setText(TEXT_POS pos, QString text);
 
 protected:
-	/// Draw a standard meteorlogical wind barb, representing the speed and direction of the
+	/// @return The station model bounding box.
+    QRectF boundingRect() const;
+    /// There seems to be a bug in Qt, where the events are not propagated to
+    /// the graphics item if the item is a member of a graphics item group.
+    /// However the events are sent to the sceneEvent filter. Re-implement
+    /// sceneEvent(), and send the events of interest on to the event handlers/
+    /// @param event The event.
+    /// @return True if the event was handled, false otherwise.
+    bool sceneEvent(QEvent *event);
+    /// Handle the hover enter event.
+    /// @todo But what should we do?
+    /// @param event The event.
+    void hoverEnterEvent(QGraphicsSceneHoverEvent* event) ;
+    /// Handle the hover leave event.
+    /// @todo But what should we do?
+    /// @param event The event.
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent* event) ;
+    /// Handle the mouse press event.
+    /// @todo But what should we do?
+    /// @param event The event.
+    void mousePressEvent (QGraphicsSceneMouseEvent* event);
+	/// Draw a standard meteorological wind barb, representing the speed and direction of the
 	/// wind. The barb points towards the direction the wind is coming from. Flags on the barb cumulatively add
 	/// to the wind speed: 1/2 line is 5, a whole line is 10, and a triangle is 50. No assumption is made about the units of the
 	/// wind speed.
@@ -144,12 +164,12 @@ protected:
     int _hh;
 	/// The minute time of the observation.
     int _mm;
+    /// This map identifies the sectors that the
     std::map<TEXT_POS, QString> _text;
     int _scale;
     /// The aspect ration (Y/X) of the current viewport. It allows us to
     /// present angles correctly.
     double _aspectRatio;
-    /// This map identifies the sectors that the
 
 };
 

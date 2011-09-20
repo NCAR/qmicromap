@@ -9,47 +9,33 @@
 #include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QStationModelGraphicsItem::QStationModelGraphicsItem(
-		double x,
-		double y,
-		double spdKnots,
-		double dirMet,
-		double tDryC,
-		double RH,
-		double presOrHeight,
-		bool isPres,
-		int hh,
-		int mm,
-		double scale,
-		QGraphicsItem* parent):
-QGraphicsItem(parent),
-_x(x),
-_y(y),
-_spdKnots(spdKnots),
-_dirMet(dirMet),
-_tDryC(tDryC),
-_RH(RH),
-_presOrHeight(presOrHeight),
-_isPres(isPres),
-_hh(hh),
-_mm(mm),
-_scale(scale),
-_aspectRatio(1.0)
-{
-	_text[N ] = "";
+QStationModelGraphicsItem::QStationModelGraphicsItem(double x, double y,
+		double spdKnots, double dirMet, double tDryC, double RH,
+		double presOrHeight, bool isPres, int hh, int mm, double scale,
+		QGraphicsItem* parent) :
+		QGraphicsItem(parent), _x(x), _y(y), _spdKnots(spdKnots), _dirMet(
+				dirMet), _tDryC(tDryC), _RH(RH), _presOrHeight(presOrHeight), _isPres(
+				isPres), _hh(hh), _mm(mm), _scale(scale), _aspectRatio(1.0) {
+	_text[N] = "";
 	_text[NE] = "";
-	_text[E ] = "";
+	_text[E] = "";
 	_text[SE] = "";
-	_text[S ] = "";
+	_text[S] = "";
 	_text[SW] = "";
-	_text[W ] = "";
+	_text[W] = "";
 	_text[NW] = "";
 
 	setPos(_x, _y);
 
+	setAcceptedMouseButtons(Qt::LeftButton);
+
 	// turn off transformations. The item will now draw with local
 	// scale in terms of screen pixels.
 	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
+	setFlag(QGraphicsItem::ItemIsFocusable, true);
+
+	// accept hover events
+	setAcceptHoverEvents(true);
 
 }
 
@@ -59,27 +45,87 @@ QStationModelGraphicsItem::~QStationModelGraphicsItem() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QRectF QStationModelGraphicsItem::boundingRect() const
- {
-     return QRectF(-_scale, -_scale, 2*_scale, 2*_scale);
- }
+bool QStationModelGraphicsItem::sceneEvent(QEvent *event) {
+	switch (event->type()) {
+
+	case QEvent::GraphicsSceneMousePress:
+		mousePressEvent(static_cast<QGraphicsSceneMouseEvent *>(event));
+		break;
+
+	case QEvent::GraphicsSceneHoverEnter:
+		hoverEnterEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+		break;
+
+	case QEvent::GraphicsSceneHoverLeave:
+		hoverLeaveEvent(static_cast<QGraphicsSceneHoverEvent *>(event));
+		break;
+
+	default:
+		return (QGraphicsItem::sceneEvent(event));
+	}
+
+	return true;
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-            QWidget *widget)
- {
+void QStationModelGraphicsItem::mousePressEvent(
+		QGraphicsSceneMouseEvent * event) {
+	std::cout << "mouse press " << event->scenePos().x() << _spdKnots
+			<< std::endl;
+	QGraphicsItem::mousePressEvent(event);
+}
 
-	 QPen oldPen = painter->pen();
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::hoverEnterEvent(
+		QGraphicsSceneHoverEvent * event) {
+	std::cout << "hover enter " << _spdKnots << std::endl;
+	QGraphicsItem::hoverEnterEvent(event);
+}
 
-	 painter->setPen(QPen("black"));
-     drawWindFlag(painter);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::hoverLeaveEvent(
+		QGraphicsSceneHoverEvent * event) {
+	std::cout << " hover leave " << _spdKnots << std::endl;
+	QGraphicsItem::hoverEnterEvent(event);
+}
 
-     painter->setPen(QPen("blue"));
-     drawTextFields(painter);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+QRectF QStationModelGraphicsItem::boundingRect() const {
+	QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
 
-     painter->setPen(oldPen);
+	return r;
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+/**
+ QPainterPath QStationModelGraphicsItem::shape() const {
+ QPainterPath result;
+
+ QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
+
+ result.addRect(r);
+
+ std::cout << __PRETTY_FUNCTION__ << " " << _spdKnots << std::endl;
+
+ return result;
  }
+ **/
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::paint(QPainter *painter,
+		const QStyleOptionGraphicsItem *option, QWidget *widget) {
+
+	QPen oldPen = painter->pen();
+
+	painter->setPen(QPen("black"));
+	drawWindFlag(painter);
+
+	painter->setPen(QPen("blue"));
+	drawTextFields(painter);
+
+	painter->setPen(oldPen);
+
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
@@ -88,9 +134,9 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	TextSectors sectors(_dirMet, 10);
 
 	// Draw each text field
-	QString tdry = QString("%1").arg(_tDryC,        0,'f',1);
+	QString tdry = QString("%1").arg(_tDryC, 0, 'f', 1);
 
-	QString rh   = QString("%1").arg(_RH,           0,'f',0);
+	QString rh = QString("%1").arg(_RH, 0, 'f', 0);
 
 	double presOrHeight = _presOrHeight;
 	if (_isPres) {
@@ -102,40 +148,38 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 			}
 		}
 	}
-	QString pht  = QString("%1").arg(presOrHeight, 0,'f',0);
+	QString pht = QString("%1").arg(presOrHeight, 0, 'f', 0);
 
-	int t = _hh*100 + _mm;
+	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4);
 
 	drawTextField(painter, sectors, TextSectors::TDRY, tdry);
-	drawTextField(painter, sectors, TextSectors::RH,   rh);
-	drawTextField(painter, sectors, TextSectors::PHT,  pht);
+	drawTextField(painter, sectors, TextSectors::RH, rh);
+	drawTextField(painter, sectors, TextSectors::PHT, pht);
 	drawTextField(painter, sectors, TextSectors::TIME, time);
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::drawTextField(QPainter* painter, TextSectors& sectors, TextSectors::TEXT_TYPE typ, QString txt) {
-
-
+void QStationModelGraphicsItem::drawTextField(QPainter* painter,
+		TextSectors& sectors, TextSectors::TEXT_TYPE typ, QString txt) {
 
 	QRect textBox = painter->fontMetrics().boundingRect(txt);
 
-    double xoffset = 0;
-    if (sectors._hjust[typ] == TextSectors::RIGHT) {
-    	xoffset = -textBox.width();
-    }
+	double xoffset = 0;
+	if (sectors._hjust[typ] == TextSectors::RIGHT) {
+		xoffset = -textBox.width();
+	}
 
-    double yoffset = 0;
-    if (sectors._vjust[typ] == TextSectors::TOP) {
-    	yoffset = textBox.height();
-    }
+	double yoffset = 0;
+	if (sectors._vjust[typ] == TextSectors::TOP) {
+		yoffset = textBox.height();
+	}
 
 	double x = sectors._x[typ] + xoffset;
 	double y = sectors._y[typ] + yoffset;
 
-    painter->drawText(x, y, txt);
-
+	painter->drawText(x, y, txt);
 
 }
 
@@ -144,10 +188,11 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 
 	// draw the dot at the center of the flag
 	double dotRadius = 3;
-	painter->drawEllipse(-dotRadius, -dotRadius, 2*dotRadius, 2*dotRadius);
+	painter->drawEllipse(-dotRadius, -dotRadius, 2 * dotRadius, 2 * dotRadius);
 	if (_spdKnots < 0) {
 		// winds are missing; draw double circle
-		painter->drawEllipse(-1.5*dotRadius, -1.5*dotRadius, 3*dotRadius, 3*dotRadius);
+		painter->drawEllipse(-1.5 * dotRadius, -1.5 * dotRadius, 3 * dotRadius,
+				3 * dotRadius);
 	}
 
 	if (_spdKnots < 0.1) {
@@ -246,17 +291,17 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length, QPointF& newP)
-  {
-  double d = angle * 3.14159 / 180.0;
+void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length,
+		QPointF& newP) {
+	double d = angle * 3.14159 / 180.0;
 
-  double deltaX = length * cos(d);
+	double deltaX = length * cos(d);
 
-  double deltaY = length * sin(d)/_aspectRatio;
+	double deltaY = length * sin(d) / _aspectRatio;
 
-  newP = QPointF(p.x() + deltaX, p.y() - deltaY);
+	newP = QPointF(p.x() + deltaX, p.y() - deltaY);
 
-  }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::setText(TEXT_POS pos, QString text) {
@@ -264,10 +309,8 @@ void QStationModelGraphicsItem::setText(TEXT_POS pos, QString text) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset):
-	_wdir(wdir),
-	_offset(offset)
-{
+QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset) :
+		_wdir(wdir), _offset(offset) {
 
 	double dir = 450 - wdir;
 
@@ -280,7 +323,7 @@ QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset):
 	}
 
 	// determine the wind flag sector
-	_windSector = (int)(dir/45.0);
+	_windSector = (int) (dir / 45.0);
 
 	// identify the sectors
 	switch (_windSector) {
@@ -288,45 +331,45 @@ QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset):
 	case 2:
 	case 5:
 	case 6:
-		_sector [TDRY] = 3;
-		_sector [RH]   = 4;
-		_sector [PHT]  = 0;
-		_sector [TIME] = 7;
+		_sector[TDRY] = 3;
+		_sector[RH] = 4;
+		_sector[PHT] = 0;
+		_sector[TIME] = 7;
 		break;
 	case 0:
-		_sector [TDRY] = 3;
-		_sector [RH]   = 4;
-		_sector [PHT]  = 1;
-		_sector [TIME] = 7;
+		_sector[TDRY] = 3;
+		_sector[RH] = 4;
+		_sector[PHT] = 1;
+		_sector[TIME] = 7;
 		break;
 	case 3:
-		_sector [TDRY] = 2;
-		_sector [RH]   = 4;
-		_sector [PHT]  = 0;
-		_sector [TIME] = 7;
+		_sector[TDRY] = 2;
+		_sector[RH] = 4;
+		_sector[PHT] = 0;
+		_sector[TIME] = 7;
 		break;
 	case 4:
-		_sector [TDRY] = 3;
-		_sector [RH]   = 5;
-		_sector [PHT]  = 0;
-		_sector [TIME] = 7;
+		_sector[TDRY] = 3;
+		_sector[RH] = 5;
+		_sector[PHT] = 0;
+		_sector[TIME] = 7;
 		break;
 	case 7:
-		_sector [TDRY] = 3;
-		_sector [RH]   = 4;
-		_sector [PHT]  = 0;
-		_sector [TIME] = 6;
+		_sector[TDRY] = 3;
+		_sector[RH] = 4;
+		_sector[PHT] = 0;
+		_sector[TIME] = 6;
 		break;
 	}
 
 	_hjust[TDRY] = RIGHT;
-	_hjust[RH]   = RIGHT;
-	_hjust[PHT]  = LEFT;
+	_hjust[RH] = RIGHT;
+	_hjust[PHT] = LEFT;
 	_hjust[TIME] = LEFT;
 
 	_vjust[TDRY] = BOTTOM;
-	_vjust[RH]   = TOP;
-	_vjust[PHT]  = BOTTOM;
+	_vjust[RH] = TOP;
+	_vjust[PHT] = BOTTOM;
 	_vjust[TIME] = TOP;
 
 	// compute the coordinates
@@ -346,15 +389,15 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates() {
 	types.push_back(PHT);
 	types.push_back(TIME);
 
+	for (std::vector<TEXT_TYPE>::iterator i = types.begin(); i != types.end();
+			i++) {
+		double angle = 45.0 * (_sector[*i] + 0.5);
+		angle = M_PI * angle / 180.0;
 
-	for (std::vector<TEXT_TYPE>::iterator i = types.begin(); i != types.end(); i++) {
-		double angle = 45.0*(_sector[*i] + 0.5);
-		angle = M_PI*angle/180.0;
-
-		_x[*i] =  cos(angle)*_offset;
+		_x[*i] = cos(angle) * _offset;
 
 		// the Y coordinate is inverted, since Y runs from top of screen to bottom of screen
-		_y[*i] = -sin(angle)*_offset;
+		_y[*i] = -sin(angle) * _offset;
 
 		//std::cout << "wdir:" << _wdir << " wind sector:" << _windSector << " type:" << *i << " sector:" << _sector[*i] << " x:" << _x[*i] << "   y:" << _y[*i] << std::endl;
 	}

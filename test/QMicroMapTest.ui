@@ -87,6 +87,13 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QRadioButton" name="mouseSelect">
+          <property name="text">
+           <string>Select</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QRadioButton" name="mousePan">
           <property name="text">
            <string>Pan</string>
