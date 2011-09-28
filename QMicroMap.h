@@ -49,7 +49,8 @@ class PointFeature: public Feature {
 public:
 	/// Constructor
 	/// @param tableName The database table containing this feature.
-	/// @param baseColor The default color for rendering this feature.
+	/// @param baseColor The default internal color for rendering this feature.
+	/// @param edgeColor The default edge color for rendering this feature.
 	/// @param geometryName The name of the column containing the geometry. It will
 	/// almost always be named "Geometry".
 	/// @param nameColumn If the database has a name associated with this feature, this is
@@ -71,6 +72,7 @@ public:
 	/// Constructor
 	/// @param tableName The database table containing this feature.
 	/// @param baseColor The default color for rendering this feature.
+	/// @param edgeColor The default edge color for rendering this feature.
 	/// @param geometryName The name of the column containing the geometry. It will
 	/// almost always be named "Geometry".
 	/// @param nameColumn If the database has a name associated with this feature, this is
@@ -157,7 +159,7 @@ public:
 	/// @param ymin The bounding box minimum latitude, in decimal degrees.
 	/// @param ymax The bounding box maximum latitude, in decimal degrees.
 	/// @param backGroundColor The background color of the map.
-	/// @param The parent widget.
+	/// @param parent The parent widget.
 	QMicroMap(SpatiaLiteDB& db,
 			double xmin,
 			double ymin,
@@ -179,7 +181,7 @@ public slots:
 	/// @param on True if the labels should be displayed, false otherwise.
 	void labels(int on);
 	/// Turn the grid display on and off.
-	/// @param grid true if the grid shold be displayed, false otherwise.
+	/// @param on True if the grid should be displayed, false otherwise.
 	void grid(int on);
 	/// Reset the display to the minimum display level.
 	void reset();

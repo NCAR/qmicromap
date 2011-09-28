@@ -49,7 +49,8 @@ if env['PLATFORM'] == 'win32':
 libqmicromap = env.Library('qmicromap', libsources)
 env.Default(libqmicromap)
 
-html = env.Apidocs(libsources + headers,  DOXYFILE_DICT={'PROJECT_NAME':'QMicroMap', 'PROJECT_NUMBER':'1.0'})
+html = env.Apidocs(libsources + headers,  DOXYFILE_DICT={'PROJECT_NAME':'MicroMap', 'PROJECT_NUMBER':'1.0'})
+env.AppendDoxref('MicroMap')
 env.Default(html)
 
 thisdir = env.Dir('.').srcnode().abspath
