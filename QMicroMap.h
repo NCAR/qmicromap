@@ -15,10 +15,11 @@
 #include "SpatiaLiteDB.h"
 
 /////////////////////////////////////////////////////////////////////
-/// @brief A property manager for features to be rendered on the map, and their pairing with
-/// database elements.
-/// The database table and column are specified, along with a feature name and its default rendering
-/// color. Derived classes will add properties relevant to their type.
+/// @brief A property manager for features to be rendered on the map,
+/// and their pairing with database elements.
+/// The database table and column are specified, along with a feature
+/// name and its default rendering color. Derived classes will add
+/// properties relevant to their type.
 class Feature {
 public:
 	/// Constructor
@@ -72,7 +73,6 @@ public:
 	/// Constructor
 	/// @param tableName The database table containing this feature.
 	/// @param baseColor The default color for rendering this feature.
-	/// @param edgeColor The default edge color for rendering this feature.
 	/// @param geometryName The name of the column containing the geometry. It will
 	/// almost always be named "Geometry".
 	/// @param nameColumn If the database has a name associated with this feature, this is
@@ -91,6 +91,7 @@ public:
 	/// Constructor
 	/// @param tableName The database table containing this feature.
 	/// @param baseColor The default color for rendering this feature.
+	/// @param edgeColor The default edge color for rendering this feature.
 	/// @param geometryName The name of the column containing the geometry. It will
 	/// almost always be named "Geometry".
 	/// @param nameColumn If the database has a name associated with this feature, this is
@@ -144,13 +145,14 @@ class QMicroMap: public QGraphicsView {
 
 public:
 	/// Behavioral modes for mouse interaction with QMicroMap.
-	enum MOUSE_MODE  {
+	enum MOUSE_MODE {
 		/// The mouse is used for selecting objects.
 		MOUSE_SELECT,
 		/// The mouse is used for panning.
 		MOUSE_PAN,
 		/// The mouse is used for zooming.
-		MOUSE_ZOOM};
+		MOUSE_ZOOM
+	};
 
 	/// Constructor
 	/// @param db The geographic database.
@@ -173,7 +175,7 @@ public:
 	/// @param mode The mouse mode.
 	void setMouseMode(MOUSE_MODE mode);
     /// Override the scale() function so that we can redraw the
-    /// the grid when zooming is effected through scaling.
+    /// grid when zooming is effected through scaling.
     virtual void scale(qreal sx, qreal sy);
 
 public slots:
@@ -187,7 +189,7 @@ public slots:
 	void reset();
 
 signals:
-	/// Emmit this signal to inform others that the mouse mode has changed.
+	/// Emit this signal to inform others that the mouse mode has changed.
 	void mouseMode(QMicroMap::MOUSE_MODE);
 
 protected:
@@ -252,15 +254,15 @@ protected:
 	/// The collection of features that were vetted and verified to be in the database.
 	std::vector<Feature*> _features;
     /// The group of points. Points are used just for labels, and
-	/// grouped so that they can be toggled on and off.
+	/// grouped so that they can be toggled on and off together.
     QGraphicsItemGroup* _pointsGroup;
-    /// True if the grid hould be drawn.
+    /// True if the grid should be drawn.
     bool _gridOn;
     /// The collection of grid lines.
     QGraphicsItemGroup* _gridGroup;
     /// The current grid spacing, in degrees.
     double _gridDelta;
-    /// The current mousemode.
+    /// The current mouse mode.
     MOUSE_MODE _mouseMode;
     /// The rubberband box used for zooming.
     QRubberBand* _rubberBand;

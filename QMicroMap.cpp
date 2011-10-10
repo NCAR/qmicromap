@@ -71,7 +71,6 @@ PolygonFeature::~PolygonFeature() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 		double ymax, std::string backgroundColor, QWidget* parent) :
 	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
@@ -143,31 +142,31 @@ void QMicroMap::selectFeatures() {
 	std::vector<Feature*> all_features;
 
 	// define the features that we hope are in the database. There is a good chance that
-	// they are not all avaiable.
+	// they are not all available.
 	all_features.push_back(
-			new PolygonFeature("admin_0_countries",               "beige",        "black"));
+			new PolygonFeature("admin_0_countries",                "beige",      "black"));
 	all_features.push_back(
-			new LineFeature("admin_1_states_provinces_lines_shp", "grey"));
+			new LineFeature("admin_1_states_provinces_lines_shp",  "grey"));
 	all_features.push_back(
-			new PolygonFeature("lakes",                            "lightblue",   "blue"));
+			new PolygonFeature("lakes",                            "lightblue",  "blue"));
 	all_features.push_back(
 			new LineFeature("rivers_lake_centerlines",             "blue"));
 	all_features.push_back(
-			new PointFeature("geography_regions_points",            "yellow",     "brown", "Geometry", "Name"));
+			new PointFeature("geography_regions_points",           "yellow",     "brown", "Geometry", "Name"));
 	all_features.push_back(
-			new PointFeature("geography_regions_elevation_points",  "lightgreen", "green", "Geometry", "Name"));
+			new PointFeature("geography_regions_elevation_points", "lightgreen", "green", "Geometry", "Name"));
 	all_features.push_back(
-			new PointFeature("populated_places",                    "red",        "black", "Geometry", "Name"));
+			new PointFeature("populated_places",                   "red",        "black", "Geometry", "Name"));
 	all_features.push_back(
-			new LineFeature("geographic_lines",                     "yellow"));
+			new LineFeature("geographic_lines",                    "yellow"));
 	all_features.push_back(
-			new LineFeature("coastline",                            "red"));
+			new LineFeature("coastline",                           "red"));
 
 	// get the names of tables containing geometry
 	std::vector < std::string > geo_tables;
 	geo_tables = _db.geometryTables();
 
-	// query the tables, to verify that the feature is avaiable
+	// query the tables, to verify that the feature is available
 	for (std::vector<Feature*>::iterator feature = all_features.begin();
 			feature != all_features.end(); feature++) {
 
@@ -185,7 +184,6 @@ void QMicroMap::selectFeatures() {
 		// Okay, it passed the test, so save it as one of the vetted features.
 		_features.push_back(*feature);
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -413,7 +411,6 @@ void QMicroMap::drawGrid() {
 			_gridGroup->hide();
 		}
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -424,7 +421,6 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 
 	// draw the grid
 	drawGrid();
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -467,7 +463,6 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 	}
 
 	return;
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -479,6 +474,9 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			QRectF scenerect = _zoomRectStack.top();
 			fitInView(scenerect);
 		}
+		// Hide rubber band after right button is clicked and released
+		if (_rubberBand)
+			_rubberBand->hide();
 		return;
 	}
 
@@ -513,7 +511,6 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 	}
 
 	return;
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -537,7 +534,6 @@ void QMicroMap::setMouseMode(MOUSE_MODE mode) {
 	default:
 		break;
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -558,7 +554,6 @@ void QMicroMap::mouseDoubleClickEvent (QMouseEvent * event) {
 	}
 
 	emit mouseMode(_mouseMode);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -570,5 +565,3 @@ void QMicroMap::reset() {
 	QRectF scenerect = _zoomRectStack.top();
 	fitInView(scenerect);
 }
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
