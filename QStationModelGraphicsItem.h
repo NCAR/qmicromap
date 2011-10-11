@@ -11,7 +11,7 @@
 #include <QtGui>
 #include <map>
 
-/// @brief A QGraphicsItem representation of the meterological station model.
+/// @brief A QGraphicsItem representation of the meteorological station model.
 ///
 /// A wind barb and text elements are rendered.
 ///
@@ -46,7 +46,7 @@ class QStationModelGraphicsItem: public QGraphicsItem
 	public:
 		enum TEXT_TYPE {TDRY, RH, PHT, TIME};
 		enum TEXT_JUST {LEFT, RIGHT, TOP, BOTTOM};
-		/// @param wdir The wind direction, in meteorlogical coordinates,
+		/// @param wdir The wind direction, in meteorological coordinates,
 		/// magnetic, pointing into the wind.
 		/// @param The offset of the text along the radial.
 		TextSectors(double wdir, double offset);
@@ -66,7 +66,7 @@ class QStationModelGraphicsItem: public QGraphicsItem
 		/// Create the x,y coordinates for each text type. Figure out
 		/// how to avoid conflicting with the wind barb.
 		void createCoordinates();
-		/// The wind direction, in meteorlogical coordinates,
+		/// The wind direction, in meteorological coordinates,
 		/// pointing into the wind.
 		double _wdir;
 		/// The offset of the text elements, along the radial.
@@ -81,7 +81,7 @@ public:
 
 	/// Constructor
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
-	/// @param x Y location in the QGraphicsscene coordinate system, typically latitude.
+	/// @param y Y location in the QGraphicsscene coordinate system, typically latitude.
 	/// @param spdKnots Wind speed in knots.
 	/// @param dirMet Meteorological wind direction, magnetic, pointing into the wind.
 	/// @param tDryC Temperature in degC.
@@ -124,10 +124,10 @@ protected:
     /// Handle the mouse press event. Currently, no action is taken.
     /// @param event The event.
     void mousePressEvent (QGraphicsSceneMouseEvent* event);
-	/// Draw a standard meteorological wind barb, representing the speed and direction of the
-	/// wind. The barb points towards the direction the wind is coming from. Flags on the barb cumulatively add
-	/// to the wind speed: 1/2 line is 5, a whole line is 10, and a triangle is 50. No assumption is made about the units of the
-	/// wind speed.
+	/// Draw a standard meteorological wind barb, representing the speed and direction of
+    /// the wind. The barb points towards the direction the wind is coming from. Flags on
+    /// the barb cumulatively add to the wind speed: 1/2 line is 5, a whole line is 10,
+    /// and a triangle is 50. No assumption is made about the units of the wind speed.
     /// @param painter The painter to draw with.
     void drawWindFlag(QPainter *painter);
     /// Draw the text fields: tdry, rh, press/ht and time. The TextSectors class
@@ -135,8 +135,8 @@ protected:
     /// @param painter The painter to draw with.
     void drawTextFields(QPainter *painter);
     /// Render a single text field.
-    /// @param painter THe device to be drawn upon.
-    /// @param sectors
+    /// @param painter The device to be drawn upon.
+    /// @param sectors The sector to draw the text field
     /// @param typ The text type
     /// @param txt The text to be rendered.
     void drawTextField(QPainter* painter, TextSectors& sectors, TextSectors::TEXT_TYPE typ, QString txt);
@@ -146,7 +146,7 @@ protected:
 	/// @param p The initial point.
 	/// @param angle The line angle, in cartessian coordinate system.
 	/// @param length The length of the line, in Rect units.
-	/// @param  newP The calculated endpoint is returned here.
+	/// @param newP The calculated endpoint is returned here.
     void xyang(QPointF p, double angle, double length, QPointF& newP);
     /// The center x location , in scene coordinates
     double _x;

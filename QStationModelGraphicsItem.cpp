@@ -21,20 +21,20 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 		int hh,
 		int mm,
 		double scale) :
-		QGraphicsItem(),
-		_x(x),
-		_y(y),
-		_spdKnots(spdKnots),
-		_dirMet(dirMet),
-		_tDryC(tDryC),
-		_RH(RH),
-		_presOrHeight(presOrHeight),
-		_isPres(isPres),
-		_hh(hh),
-		_mm(mm),
-		_scale(scale),
-		_aspectRatio(1.0) {
-
+QGraphicsItem(),
+_x(x),
+_y(y),
+_spdKnots(spdKnots),
+_dirMet(dirMet),
+_tDryC(tDryC),
+_RH(RH),
+_presOrHeight(presOrHeight),
+_isPres(isPres),
+_hh(hh),
+_mm(mm),
+_scale(scale),
+_aspectRatio(1.0)
+{
 	_text[N] = "";
 	_text[NE] = "";
 	_text[E] = "";
@@ -55,17 +55,14 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 
 	// accept hover events
 	setAcceptHoverEvents(true);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QStationModelGraphicsItem::~QStationModelGraphicsItem() {
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::mousePressEvent(
-		QGraphicsSceneMouseEvent * event) {
+void QStationModelGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event) {
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
@@ -76,8 +73,7 @@ void QStationModelGraphicsItem::mousePressEvent(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::hoverEnterEvent(
-		QGraphicsSceneHoverEvent * event) {
+void QStationModelGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent * event) {
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
@@ -88,8 +84,7 @@ void QStationModelGraphicsItem::hoverEnterEvent(
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::hoverLeaveEvent(
-		QGraphicsSceneHoverEvent * event) {
+void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event) {
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
@@ -119,7 +114,6 @@ void QStationModelGraphicsItem::paint(QPainter *painter,
 	drawTextFields(painter);
 
 	painter->setPen(oldPen);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,13 +140,12 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	QString pht = QString("%1").arg(presOrHeight, 0, 'f', 0);
 
 	int t = _hh * 100 + _mm;
-	QString time = QString("%1").arg(t, 4);
+	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
 
 	drawTextField(painter, sectors, TextSectors::TDRY, tdry);
 	drawTextField(painter, sectors, TextSectors::RH, rh);
 	drawTextField(painter, sectors, TextSectors::PHT, pht);
 	drawTextField(painter, sectors, TextSectors::TIME, time);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +168,6 @@ void QStationModelGraphicsItem::drawTextField(QPainter* painter,
 	double y = sectors._y[typ] + yoffset;
 
 	painter->drawText(x, y, txt);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -226,7 +218,7 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 
 	delta = 50;
 
-	while (w > delta) {
+	while (w >= delta) {
 		xyang(p1, d - 120, triLength, p2);
 		painter->drawLine(p1, p2);
 		p1 = p2;
@@ -248,7 +240,7 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 
 	delta = 10;
 
-	while (w > delta) {
+	while (w >= delta) {
 
 		xyang(p1, d - 90, symScale, p2);
 		painter->drawLine(p1, p2);
@@ -268,7 +260,7 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 
 	delta = 5;
 
-	while (w > delta) {
+	while (w >= delta) {
 
 		xyang(p1, d - 90, symScale / 2, p2);
 		painter->drawLine(p1, p2);
@@ -286,8 +278,7 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length,
-		QPointF& newP) {
+void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length, QPointF& newP) {
 	double d = angle * 3.14159 / 180.0;
 
 	double deltaX = length * cos(d);
@@ -295,7 +286,6 @@ void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length,
 	double deltaY = length * sin(d) / _aspectRatio;
 
 	newP = QPointF(p.x() + deltaX, p.y() - deltaY);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -305,8 +295,9 @@ void QStationModelGraphicsItem::setText(TEXT_POS pos, QString text) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset) :
-		_wdir(wdir), _offset(offset) {
-
+_wdir(wdir),
+_offset(offset)
+{
 	double dir = 450 - wdir;
 
 	// make sure that the direction is between 0 and 360
@@ -374,8 +365,8 @@ QStationModelGraphicsItem::TextSectors::TextSectors(double wdir, double offset) 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QStationModelGraphicsItem::TextSectors::~TextSectors() {
-
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::TextSectors::createCoordinates() {
 
@@ -394,6 +385,5 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates() {
 
 		// the Y coordinate is inverted, since Y runs from top of screen to bottom of screen
 		_y[*i] = -sin(angle) * _offset;
-
 	}
 }
