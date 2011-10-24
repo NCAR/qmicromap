@@ -125,7 +125,7 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	// Draw each text field
 	QString tdry = QString("%1").arg(_tDryC, 0, 'f', 1);
 
-	QString rh = QString("%1").arg(_RH, 0, 'f', 0);
+	QString rh = QString("%1").arg(_RH, 0, 'f', 1);
 
 	double presOrHeight = _presOrHeight;
 	if (_isPres) {
@@ -142,9 +142,12 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
 
-	drawTextField(painter, sectors, TextSectors::TDRY, tdry);
-	drawTextField(painter, sectors, TextSectors::RH, rh);
-	drawTextField(painter, sectors, TextSectors::PHT, pht);
+	if (_tDryC != -999.0)
+		drawTextField(painter, sectors, TextSectors::TDRY, tdry);
+	if (_RH != -999.0)
+		drawTextField(painter, sectors, TextSectors::RH, rh);
+	if (_presOrHeight != -999.0)
+		drawTextField(painter, sectors, TextSectors::PHT, pht);
 	drawTextField(painter, sectors, TextSectors::TIME, time);
 }
 
@@ -176,8 +179,8 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 	// draw the dot at the center of the flag
 	double dotRadius = 3;
 	painter->drawEllipse(-dotRadius, -dotRadius, 2 * dotRadius, 2 * dotRadius);
-	if (_spdKnots < 0) {
-		// winds are missing; draw double circle
+	if (_spdKnots == 0.0) {
+		// calm winds, draw double circle
 		painter->drawEllipse(-1.5 * dotRadius, -1.5 * dotRadius, 3 * dotRadius,
 				3 * dotRadius);
 	}
