@@ -120,7 +120,7 @@ void QStationModelGraphicsItem::paint(QPainter *painter,
 void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 
 	// get the sector and coordinate assignments for this wind direction
-	TextSectors sectors(_dirMet, 10);
+	TextSectors sectors(_dirMet, 11);
 
 	// Draw each text field
 	QString tdry = QString("%1").arg(_tDryC, 0, 'f', 1);
@@ -312,55 +312,65 @@ _offset(offset)
 	}
 
 	// determine the wind flag sector
-	_windSector = (int) (dir / 45.0);
+	_windSector = (int) (dir / 22.5);
 
 	// identify the text sectors that will not interfere
 	// with the wind sector.
 	switch (_windSector) {
-	case 1:
-	case 2:
-	case 5:
-	case 6:
-		_sector[TDRY] = 3;
-		_sector[RH] = 4;
-		_sector[PHT] = 0;
-		_sector[TIME] = 7;
-		break;
 	case 0:
-		_sector[TDRY] = 3;
-		_sector[RH] = 4;
-		_sector[PHT] = 1;
-		_sector[TIME] = 7;
+	case 7:
+	case 8:
+	case 15:
+		assignSector(2, 5, 9, 14);
+		setVjustification(BOTTOM, BOTTOM, TOP, TOP);
+		break;
+	case 1:
+		assignSector(0, 7, 10, 13);
+		setVjustification(TOP, BOTTOM, TOP, TOP);
+		break;
+	case 2:
+		assignSector(1, 7, 9, 14);
+		setVjustification(TOP, BOTTOM, TOP, TOP);
 		break;
 	case 3:
-		_sector[TDRY] = 2;
-		_sector[RH] = 4;
-		_sector[PHT] = 0;
-		_sector[TIME] = 7;
-		break;
 	case 4:
-		_sector[TDRY] = 3;
-		_sector[RH] = 5;
-		_sector[PHT] = 0;
-		_sector[TIME] = 7;
+	case 11:
+	case 12:
+		assignSector(1, 6, 9, 14);
+		setVjustification(BOTTOM, BOTTOM, TOP, TOP);
 		break;
-	case 7:
-		_sector[TDRY] = 3;
-		_sector[RH] = 4;
-		_sector[PHT] = 0;
-		_sector[TIME] = 6;
+	case 5:
+		assignSector(0, 6, 9, 14);
+		setVjustification(BOTTOM, TOP, TOP, TOP);
+		break;
+	case 6:
+		assignSector(0, 7, 10, 13);
+		setVjustification(BOTTOM, TOP, TOP, TOP);
+		break;
+	case 9:
+		assignSector(2, 5, 8, 15);
+		setVjustification(BOTTOM, BOTTOM, BOTTOM, TOP);
+		break;
+	case 10:
+		assignSector(1, 6, 9, 15);
+		setVjustification(BOTTOM, BOTTOM, BOTTOM, TOP);
+		break;
+	case 13:
+		assignSector(1, 6, 8, 14);
+		setVjustification(BOTTOM, BOTTOM, TOP, BOTTOM);
+		break;
+	case 14:
+		assignSector(2, 5, 8, 15);
+		setVjustification(BOTTOM, BOTTOM, TOP, BOTTOM);
 		break;
 	}
+	//std::cout << "wdir " << wdir << ", dir " << dir << ", wind " << _windSector << ", alt " << _sector[PHT];
+	//std::cout << ", tdry " << _sector[TDRY] << ", rh " << _sector[RH] << ", time " << _sector[TIME] << std::endl;
 
 	_hjust[TDRY] = RIGHT;
 	_hjust[RH] = RIGHT;
 	_hjust[PHT] = LEFT;
 	_hjust[TIME] = LEFT;
-
-	_vjust[TDRY] = BOTTOM;
-	_vjust[RH] = TOP;
-	_vjust[PHT] = BOTTOM;
-	_vjust[TIME] = TOP;
 
 	// compute the coordinates for each text item
 	createCoordinates();
@@ -371,8 +381,28 @@ QStationModelGraphicsItem::TextSectors::~TextSectors() {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::TextSectors::createCoordinates() {
+void QStationModelGraphicsItem::TextSectors::assignSector(int phtSector,
+		int tdrySector, int rhSector, int timeSector)
+{
+	_sector[PHT]  = phtSector;
+	_sector[TDRY] = tdrySector;
+	_sector[RH]   = rhSector;
+	_sector[TIME] = timeSector;
+}
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::TextSectors::setVjustification(TEXT_JUST phtVjust,
+		TEXT_JUST tdryVjust, TEXT_JUST rhVjust, TEXT_JUST timeVjust)
+{
+	_vjust[PHT]  = phtVjust;
+	_vjust[TDRY] = tdryVjust;
+	_vjust[RH]   = rhVjust;
+	_vjust[TIME] = timeVjust;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::TextSectors::createCoordinates()
+{
 	std::vector<TEXT_TYPE> types;
 	types.push_back(TDRY);
 	types.push_back(RH);
@@ -381,7 +411,7 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates() {
 
 	for (std::vector<TEXT_TYPE>::iterator i = types.begin(); i != types.end();
 			i++) {
-		double angle = 45.0 * (_sector[*i] + 0.5);
+		double angle = 22.5 * (_sector[*i] + 0.5);
 		angle = M_PI * angle / 180.0;
 
 		_x[*i] = cos(angle) * _offset;

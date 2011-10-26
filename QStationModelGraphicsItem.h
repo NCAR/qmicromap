@@ -21,12 +21,12 @@
 /// Because the wind barb can be pointing in any direction, an
 /// algorithm attempts to locate the text elements so that they are
 /// not overdrawn by the barb.
-/// The model is divided into eight sectors of equal angular width (45 degrees),
-/// numbered 0 through 7. The wind flag will appear in one of these sectors,
-/// based on the wind direction. The text elements will be rendered in
-/// four other sectors. A predefined map is used to specify, for a wind flag
-/// in a given sector, the sector that each of the four text elements is
-/// displayed in.
+/// The model is divided into sixteen sectors of equal angular width (22.5
+/// degrees), numbered 0 through 15. The wind flag will appear in one of
+/// these sectors, based on the wind direction. The text elements will be
+/// rendered in four other sectors. A predefined map is used to specify,
+/// for a wind flag in a given sector, the sector that each of the four
+/// text elements is displayed in.
 ///
 /// The QGraphicsItem::ItemIgnoresTransformations flag is set for
 /// this graphics item, which means that the internal coordinates are
@@ -35,17 +35,16 @@
 /// used to set the position in the graphics scene.
 class QStationModelGraphicsItem: public QGraphicsItem
 {
-	/// @brief TextSectors is a helper class which locates the texts so
-	/// that they don't interfere with the wind barb. A sector scheme
-	/// is used. The sector numbers start at zero, and increase by one for
-	/// each 45 degree segment. Even though the wind direction is specified in
-	/// meteorological coordinates, the sectors are numbered in an
-	/// increasing cartessian sense, with 0-45 degrees being sector
-	/// 0, 45-90 degrees is sector 1, etc.
+	/// @brief TextSectors is a helper class which locates the texts so that
+	/// they don't interfere with the wind barb. A sector scheme is used. The
+	/// sector numbers start at zero, and increase by one for each 22.5 degree
+	/// segment. Even though the wind direction is specified in meteorological
+	/// coordinates, the sectors are numbered in an increasing cartessian sense,
+	/// with 0-22.5 degrees being sector 0, 22.5-45 degrees is sector 1, etc.
 	class TextSectors {
 	public:
-		enum TEXT_TYPE {TDRY, RH, PHT, TIME};
-		enum TEXT_JUST {LEFT, RIGHT, TOP, BOTTOM};
+		enum TEXT_TYPE { TDRY, RH, PHT, TIME };
+		enum TEXT_JUST { LEFT, RIGHT, TOP, BOTTOM };
 		/// @param wdir The wind direction, in meteorological coordinates,
 		/// magnetic, pointing into the wind.
 		/// @param The offset of the text along the radial.
@@ -63,6 +62,18 @@ class QStationModelGraphicsItem: public QGraphicsItem
 		/// The vertical justification for this text
 		std::map<TEXT_TYPE, TEXT_JUST> _vjust;
 	protected:
+		/// Assign sectors for each text type
+		/// @param phtSector The sector assigned to PHT text
+		/// @param tdrySector The sector assigned to TDRY text
+		/// @param rhSector The sector assigned to RH text
+		/// @param timeSector The sector assigned to TIME text
+		void assignSector(int phtSector, int tdrySector, int rhSector, int timeSector);
+		/// Set vertical justification for each text type
+		/// @param phtVjust The vertical justification for PHT text
+		/// @param tdryVjust The vertical justification for TDRY text
+		/// @param rhVjust The vertical justification for RH text
+		/// @param timeVjust The vertical justification for TIME text
+		void setVjustification(TEXT_JUST phtVjust, TEXT_JUST tdryVjust, TEXT_JUST rhVjust, TEXT_JUST timeVjust);
 		/// Create the x,y coordinates for each text type. Figure out
 		/// how to avoid conflicting with the wind barb.
 		void createCoordinates();
@@ -77,7 +88,7 @@ class QStationModelGraphicsItem: public QGraphicsItem
 
 public:
 	/// Text location indicators
-	enum TEXT_POS {N, NE, E, SE, S, SW, W, NW};
+	enum TEXT_POS { N, NE, E, SE, S, SW, W, NW };
 
 	/// Constructor
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
