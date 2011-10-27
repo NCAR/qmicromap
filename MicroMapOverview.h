@@ -248,9 +248,8 @@
 /// The versions are likely to be different than those shown below, and so the most current versions
 /// should be substituted.
 /// <ul>
-/// <li> yum install proj
-/// <li> rpm -Uhv geos-3.0.0-3.el5.kb.i386.rpm.
-/// <li> rpm -Uhv geos-devel-3.0.0-3.el5.kb.i386.rpm
+/// <li> yum install proj-devel
+/// <li> yum install geos-devel
 /// </ul>
 /// Build the amalgamation:
 /// <ul>
