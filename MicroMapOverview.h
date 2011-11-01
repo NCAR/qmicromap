@@ -267,8 +267,18 @@
 /// <ul>
 /// <li> port install proj
 /// <li> port install geos
-/// <li> port install libiconv
-/// </ul>
+/// </ul
+/// Note about iconv and ginstall: iconv is used by a bunch of the Mac Ports tools, and
+/// will probably get installed when you install them. However, the Mac Ports version is 1.13 (or higher). On
+/// Lion, Apple has provided /usr/lib/libiconv.dylib, which is v1.11. Some of the Mac libraries are counting on this
+/// version being avaiable. If we distribute the Mac Ports vrsion of iconv, Aspen won't run because for instance, the
+/// cups library can't find a symbol in our version, that is available in the Mac version.
+///
+/// The workaround is to deactivate iconv (via Mac Ports or Porticus) when building Aspen. Then the liking will specify
+/// the OS X version in /usr/lib. The same is true when building Spatialite. Make sure that the Mac Ports version of iconv
+/// is deactivated when building and installing Spatialite. You can reactivate iconv when you get complaints from the
+/// other Mac Ports packages.
+///
 /// Build the amalgamation:
 /// <ul>
 /// <li> CFLAGS=-I/opt/local/include LDFLAGS=-L/opt/local/lib ./configure --prefix=/opt/local
