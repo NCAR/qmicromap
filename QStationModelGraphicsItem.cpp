@@ -67,8 +67,6 @@ void QStationModelGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
 
-	std::cout << "mouse press " << event->scenePos().x() << _spdKnots
-			<< std::endl;
 	QGraphicsItem::mousePressEvent(event);
 }
 
@@ -77,8 +75,6 @@ void QStationModelGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent * event
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
-
-	std::cout << "hover enter " << _spdKnots << std::endl;
 
 	QGraphicsItem::hoverEnterEvent(event);
 }
@@ -89,7 +85,6 @@ void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
 
-	std::cout << " hover leave " << _spdKnots << std::endl;
 	QGraphicsItem::hoverEnterEvent(event);
 }
 

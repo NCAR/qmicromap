@@ -587,15 +587,11 @@ void QMicroMap::mouseDoubleClickEvent (QMouseEvent * event) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::reset() {
+
 	while (_zoomRectStack.size() > 1) {
 		_zoomRectStack.pop();
 	}
 
-	std::cout << __PRETTY_FUNCTION__ << ":" <<__LINE__<< " " <<width() << "  " << height() << std::endl;
-
 	QRectF scenerect = _zoomRectStack.top();
-
-	std::cout << __PRETTY_FUNCTION__ << ":" <<__LINE__<< " " <<width() << "  " << height() << std::endl;
-
 	fitInView(scenerect);
 }
