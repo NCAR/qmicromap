@@ -72,10 +72,21 @@ PolygonFeature::~PolygonFeature() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
-		double ymax, std::string backgroundColor, QWidget* parent) :
-	QGraphicsView(parent), _db(db), _xmin(xmin), _ymin(ymin), _xmax(xmax),
-			_ymax(ymax), _pointsGroup(0), _gridOn(true), _gridGroup(0),
-			_gridDelta(0), _mouseMode(MOUSE_ZOOM), _rubberBand(0), _rbOrigin(100,100) {
+		double ymax, std::string backgroundColor, QWidget* parent):
+	QGraphicsView(parent),
+	_db(db),
+	_xmin(xmin),
+	_ymin(ymin),
+	_xmax(xmax),
+	_ymax(ymax),
+	_pointsGroup(0),
+	_gridOn(true),
+	_gridGroup(0),
+	_gridDelta(0),
+	_mouseMode(MOUSE_ZOOM),
+	_rubberBand(0),
+	_rbOrigin(100,100),
+	_timerId(-1) {
 
 	// determine what features we will use from this database
 	selectFeatures();
@@ -88,8 +99,6 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	setDragMode(QGraphicsView::NoDrag);
 
 	setMouseMode(MOUSE_ZOOM);
-
-	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
 	// create the scene to hold our graphics items
 	_scene = new QGraphicsScene(this);
@@ -117,13 +126,11 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_gridGroup = new QGraphicsItemGroup;
 	_scene->addItem(_gridGroup);
 
-	_scene->setSceneRect(_scene->itemsBoundingRect());
+	QRectF scene_rect = QRectF(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
-	fitInView(scene_rect);
+	_scene->setSceneRect(scene_rect);
 
 	_zoomRectStack.push(scene_rect);
-
-	_scene->setSceneRect(_xmin, _ymin, _xmax - _xmin, _ymax - _ymin);
 
 	viewport()->setMouseTracking(true);
 
@@ -419,8 +426,30 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 	// Call the subclass resize
 	QGraphicsView::resizeEvent(event);
 
+	if (_timerId != -1) {
+		// if a timer is already active, cancel it
+		killTimer(_timerId);
+	}
+
+	// start the delay timer, for deferred drawing activities
+	_timerId = startTimer(50);
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::timerEvent(QTimerEvent *event) {
+
+	if (_timerId != -1) {
+		killTimer(_timerId);
+	}
+	_timerId = -1;
+
+	// fit in view
+	fitInView(_zoomRectStack.top());
+
 	// draw the grid
 	drawGrid();
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -562,6 +591,11 @@ void QMicroMap::reset() {
 		_zoomRectStack.pop();
 	}
 
+	std::cout << __PRETTY_FUNCTION__ << ":" <<__LINE__<< " " <<width() << "  " << height() << std::endl;
+
 	QRectF scenerect = _zoomRectStack.top();
+
+	std::cout << __PRETTY_FUNCTION__ << ":" <<__LINE__<< " " <<width() << "  " << height() << std::endl;
+
 	fitInView(scenerect);
 }

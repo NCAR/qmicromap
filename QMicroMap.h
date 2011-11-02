@@ -213,6 +213,10 @@ protected:
     /// will be emitted.
 	/// @param event The event.
     virtual void mouseDoubleClickEvent (QMouseEvent * event);
+    /// Capture timer events. The timer is used to defer some drawing
+    /// activities, such as fitInView(). Otherwise a recursive resizeEvent
+    /// loop can be triggered.
+    virtual void timerEvent(QTimerEvent *event);
     /// Create the features that are available in the database. These
     /// will be saved in _features. There is a possibility that some desired
     /// features do not exist in the database.
@@ -268,6 +272,8 @@ protected:
     QRubberBand* _rubberBand;
     /// The rubberband origin.
     QPoint _rbOrigin;
+    // The active timer id
+    int _timerId;
 };
 
 #endif /* QMICROMAP_H_ */
