@@ -132,7 +132,7 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 			}
 		}
 	}
-	QString pht = QString("%1").arg(presOrHeight, 0, 'f', 0);
+	QString pht = QString("%1").arg((int)round(presOrHeight), 3, 10, QLatin1Char('0'));
 
 	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
@@ -143,6 +143,7 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 		drawTextField(painter, sectors, TextSectors::RH, rh);
 	if (_presOrHeight != -999.0)
 		drawTextField(painter, sectors, TextSectors::PHT, pht);
+
 	drawTextField(painter, sectors, TextSectors::TIME, time);
 }
 
