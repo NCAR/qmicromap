@@ -240,7 +240,8 @@ protected:
     void drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& p);
     /// Draw the grid. A heuristic determines the grid spacing, based
     /// on the current span of the viewport.
-    void drawGrid();
+    /// @param viewRect Current span of viewport
+    void drawGrid(const QRectF viewRect);
     /// The geometric database.
 	SpatiaLiteDB& _db;
 	/// The graphics scene which manages our drawing elements.

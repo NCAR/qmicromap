@@ -133,7 +133,6 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_zoomRectStack.push(scene_rect);
 
 	viewport()->setMouseTracking(true);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -215,7 +214,9 @@ void QMicroMap::scale(qreal sx, qreal sy) {
 	QGraphicsView::scale(sx, sy);
 
 	// redraw the grid if necessary
-	drawGrid();
+	QRectF viewRect = mapToScene(viewport()->geometry()).boundingRect();
+	// draw the grid
+	drawGrid(viewRect);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,67 +358,97 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::drawGrid() {
+void QMicroMap::drawGrid(const QRectF viewRect) {
 
 	// get the current height of the viewport, in degrees.
-	QRectF rect = mapToScene(viewport()->geometry()).boundingRect();
-	double h = rect.height();
+	double h = viewRect.height();
+	// get dimension of the viewport (note: y axis is inverted)
+	double xmin = viewRect.topLeft().x();
+	if (xmin < -180) xmin = -180;
+	double ymin = viewRect.topLeft().y();
+	if (ymin < -180) ymin = -180;
+	double xmax = viewRect.bottomRight().x();
+	if (xmax > 180) xmax = 180;
+	double ymax = viewRect.bottomRight().y();
+	if (ymax > 180) ymax = 180;
 
 	// determine the grid spacing. It will be 1, 2, 5, 10 or 15 degrees latitude.
 	// try for approx. 5 segments in latitude.
 	double delta = h / 5.0;
-	if (delta < 1.0) {
+	if (delta < 1.0)
 		delta = 1.0;
-	} else {
-		if (delta < 2) {
-			delta = 2.0;
-		} else {
-			if (delta < 5.0) {
-				delta = 5.0;
-			} else {
-				if (delta < 10.0) {
-					delta = 10.0;
-				} else {
-					delta = 15.0;
-				}
-			}
-		}
+	else if (delta < 2)
+		delta = 2.0;
+	else if (delta < 5.0)
+		delta = 5.0;
+	else if (delta < 10.0)
+		delta = 10.0;
+	else
+		delta = 15.0;
+
+	// even though the grid spacing is not changed, the viewport area
+	// may be different, so redraw grid and labels anyway
+	_gridDelta = delta;
+
+	// destroy the current grid and labels
+	QList<QGraphicsItem*> gItems = _gridGroup->childItems();
+	for (int i = 0; i < gItems.size(); i++) {
+		_gridGroup->removeFromGroup(gItems[i]);
+		delete gItems[i];
 	}
 
-	// if the grid spacing is different than the current grid, remove the
-	// current grid and redraw.
-	if (delta != _gridDelta) {
-		_gridDelta = delta;
+	// draw new grid and labels
+	QPen pen("grey");
+	QString label;
+	//int k = 0;
+	for (double x = xmin; x <= xmax; x += _gridDelta) {
+		// grid line (longitude)
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, ymin), QPointF(x, ymax)));
+		line->setPen(pen);
+		_gridGroup->addToGroup(line);
 
-		// destroy the current grid
-		QList<QGraphicsItem*> items = _gridGroup->childItems();
-		for (int i = 0; i < items.size(); i++) {
-			_gridGroup->removeFromGroup(items[i]);
-			delete items[i];
-		}
-
-		// create the new grid
-		QPen pen("grey");
-		for (double x = _xmin; x <= _xmax; x += _gridDelta) {
-			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x,
-					_ymin), QPointF(x, _ymax)));
-			line->setPen(pen);
-			_gridGroup->addToGroup(line);
-		}
-		for (double y = _ymin; y <= _ymax; y += _gridDelta) {
-			QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(
-					_xmin, y), QPointF(_xmax, y)));
-			line->setPen(pen);
-			_gridGroup->addToGroup(line);
-		}
-
-		// make it visible based on the current choice.
-		if (_gridOn) {
-			_gridGroup->show();
-		} else {
-			_gridGroup->hide();
-		}
+		// grid lable (longitude)
+		//k++;
+		// if _gridDelta > 10, draw every other x (lon) labels
+		//if (_gridDelta > 10 && k%2 == 1)
+		//	continue;
+		label = QString::number(qAbs(x), 'f', 1);
+		if (x > 0) 		label += "E";
+		else if (x < 0) label += "W";
+		QGraphicsSimpleTextItem* latLabel = new QGraphicsSimpleTextItem();
+		latLabel->setText(label);
+		latLabel->setFont(QFont("Courier New", 7));
+		// turn off transformations. The label will now draw with local scale
+		latLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+		double xOffset = (xmax - xmin) * 5 / 360;
+		double yOffset = (ymax - ymin) * 4 / 180;
+		latLabel->setPos(x-xOffset, ymin+yOffset);
+		_gridGroup->addToGroup(latLabel);
 	}
+	for (double y = ymin; y <= ymax; y += _gridDelta) {
+		// grid line (latitude)
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(xmin, y), QPointF(xmax, y)));
+		line->setPen(pen);
+		_gridGroup->addToGroup(line);
+
+		// grid label (latitude)
+		label = QString::number(qAbs(y), 'f', 1);
+		if (y > 0) 		label += "N";
+		else if (y < 0) label += "S";
+		QGraphicsSimpleTextItem* lonLabel = new QGraphicsSimpleTextItem();
+		lonLabel->setText(label);
+		lonLabel->setFont(QFont("Courier New", 7));
+		// turn off transformations. The label will now draw with local scale
+		lonLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+		lonLabel->setPos(xmin, y);
+		_gridGroup->addToGroup(lonLabel);
+	}
+
+	// make them visible based on the current choice.
+	if (_gridOn)
+		_gridGroup->show();
+	else
+		_gridGroup->hide();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -433,7 +464,6 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 
 	// start the delay timer, for deferred drawing activities
 	_timerId = startTimer(50);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -448,8 +478,7 @@ void QMicroMap::timerEvent(QTimerEvent *event) {
 	fitInView(_zoomRectStack.top());
 
 	// draw the grid
-	drawGrid();
-
+	drawGrid(_zoomRectStack.top());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -502,6 +531,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			_zoomRectStack.pop();
 			QRectF scenerect = _zoomRectStack.top();
 			fitInView(scenerect);
+			drawGrid(scenerect);
 		}
 		// Hide rubber band after right button is clicked and released
 		if (_rubberBand)
@@ -528,11 +558,20 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			if ((bandh / viewh > 0.05) && (bandw / vieww > 0.05)) {
 				QRectF scenerect = mapToScene(bandrect).boundingRect();
 				fitInView(scenerect);
+				drawGrid(scenerect);
 				_zoomRectStack.push(scenerect);
 			}
+			//else
+			//	std::cout << "Room in too much!" << std::endl;
 			break;
 		}
-		case MOUSE_PAN:
+		case MOUSE_PAN: {
+			// get the current span of the viewport
+			QRectF viewRect = mapToScene(viewport()->geometry()).boundingRect();
+			// draw the grid
+			drawGrid(viewRect);
+			break;
+		}
 		case MOUSE_SELECT:
 			QGraphicsView::mouseReleaseEvent(event);
 			break;
