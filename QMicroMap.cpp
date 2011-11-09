@@ -417,7 +417,7 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 		else if (x < 0) label += "W";
 		QGraphicsSimpleTextItem* latLabel = new QGraphicsSimpleTextItem();
 		latLabel->setText(label);
-		latLabel->setFont(QFont("Courier New", 7));
+		latLabel->setFont(QFont("helvetica", 9));
 		// turn off transformations. The label will now draw with local scale
 		latLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
 		double xOffset = (xmax - xmin) * 5 / 360;
@@ -437,7 +437,7 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 		else if (y < 0) label += "S";
 		QGraphicsSimpleTextItem* lonLabel = new QGraphicsSimpleTextItem();
 		lonLabel->setText(label);
-		lonLabel->setFont(QFont("Courier New", 7));
+		lonLabel->setFont(QFont("helvetica", 9));
 		// turn off transformations. The label will now draw with local scale
 		lonLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
 		lonLabel->setPos(xmin, y);
@@ -570,6 +570,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			QRectF viewRect = mapToScene(viewport()->geometry()).boundingRect();
 			// draw the grid
 			drawGrid(viewRect);
+			QGraphicsView::mouseReleaseEvent(event);
 			break;
 		}
 		case MOUSE_SELECT:
