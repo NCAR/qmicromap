@@ -265,8 +265,6 @@ protected:
     bool _gridOn;
     /// The collection of grid lines.
     QGraphicsItemGroup* _gridGroup;
-    /// The current grid spacing, in degrees.
-    double _gridDelta;
     /// The current mouse mode.
     MOUSE_MODE _mouseMode;
     /// The rubberband box used for zooming.

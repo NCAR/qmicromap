@@ -82,7 +82,6 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_pointsGroup(0),
 	_gridOn(true),
 	_gridGroup(0),
-	_gridDelta(0),
 	_mouseMode(MOUSE_ZOOM),
 	_rubberBand(0),
 	_rbOrigin(100,100),
@@ -372,8 +371,8 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 	double ymax = viewRect.bottomRight().y();
 	if (ymax > 180) ymax = 180;
 
-	// determine the grid spacing. It will be 1, 2, 5, 10 or 15 degrees latitude.
-	// try for approx. 5 segments in latitude.
+	// determine the grid spacing. It will be 1, 2, 5, 10, 15, 30 degrees
+	// latitude.  try for approx. 5 segments in latitude.
 	double delta = h / 5.0;
 	if (delta < 1.0)
 		delta = 1.0;
@@ -383,12 +382,10 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 		delta = 5.0;
 	else if (delta < 10.0)
 		delta = 10.0;
-	else
+	else if (delta < 30.0)
 		delta = 15.0;
-
-	// even though the grid spacing is not changed, the viewport area
-	// may be different, so redraw grid and labels anyway
-	_gridDelta = delta;
+	else
+		delta = 30.0;
 
 	// destroy the current grid and labels
 	QList<QGraphicsItem*> gItems = _gridGroup->childItems();
@@ -397,51 +394,63 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 		delete gItems[i];
 	}
 
-	// draw new grid and labels
+	// draw new grid (always over the whole scene area)
 	QPen pen("grey");
-	QString label;
-	//int k = 0;
-	for (double x = xmin; x <= xmax; x += _gridDelta) {
-		// grid line (longitude)
-		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, ymin), QPointF(x, ymax)));
+	QList<double> lons;
+	for (double x = _xmin; x <= _xmax; x += delta) {
+		// longitude
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(x, _ymin), QPointF(x, _ymax)));
 		line->setPen(pen);
 		_gridGroup->addToGroup(line);
-
-		// grid lable (longitude)
-		//k++;
-		// if _gridDelta > 10, draw every other x (lon) labels
-		//if (_gridDelta > 10 && k%2 == 1)
-		//	continue;
-		label = QString::number(qAbs(x), 'f', 1);
-		if (x > 0) 		label += "E";
-		else if (x < 0) label += "W";
-		QGraphicsSimpleTextItem* latLabel = new QGraphicsSimpleTextItem();
-		latLabel->setText(label);
-		latLabel->setFont(QFont("helvetica", 9));
-		// turn off transformations. The label will now draw with local scale
-		latLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-		double xOffset = (xmax - xmin) * 5 / 360;
-		double yOffset = (ymax - ymin) * 4 / 180;
-		latLabel->setPos(x-xOffset, ymin+yOffset);
-		_gridGroup->addToGroup(latLabel);
+		// remember the longitude grid locations
+		lons.append(x);
 	}
-	for (double y = ymin; y <= ymax; y += _gridDelta) {
-		// grid line (latitude)
-		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(xmin, y), QPointF(xmax, y)));
+	QList<double> lats;
+	for (double y = _ymin; y <= _ymax; y += delta) {
+		// latitude
+		QGraphicsLineItem* line = new QGraphicsLineItem(QLineF(QPointF(_xmin, y), QPointF(_xmax, y)));
 		line->setPen(pen);
 		_gridGroup->addToGroup(line);
+		// remember the latitude grid locations
+		lats.append(y);
+	}
 
-		// grid label (latitude)
-		label = QString::number(qAbs(y), 'f', 1);
-		if (y > 0) 		label += "N";
-		else if (y < 0) label += "S";
-		QGraphicsSimpleTextItem* lonLabel = new QGraphicsSimpleTextItem();
-		lonLabel->setText(label);
-		lonLabel->setFont(QFont("helvetica", 9));
-		// turn off transformations. The label will now draw with local scale
-		lonLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-		lonLabel->setPos(xmin, y);
-		_gridGroup->addToGroup(lonLabel);
+	// draw new labels (only draw it over the current viewport)
+	QString label;
+	int j;
+	for (j = 0; j < lons.size(); j++) {
+		// longitude
+		double x = lons[j];
+		if (x >= xmin && x <= xmax) {
+			label = QString::number(qAbs(x), 'f', 0);
+			if (x > 0) 		label += "E";
+			else if (x < 0) label += "W";
+			QGraphicsSimpleTextItem* latLabel = new QGraphicsSimpleTextItem();
+			latLabel->setText(label);
+			latLabel->setFont(QFont("helvetica", 11));
+			// turn off transformations. The label will now draw with local scale
+			latLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+			double xOffset = (xmax - xmin) * 5 / 360;
+			double yOffset = (ymax - ymin) * 4 / 180;
+			latLabel->setPos(x-xOffset, ymin+yOffset);
+			_gridGroup->addToGroup(latLabel);
+		}
+	}
+	for (j = 0; j < lats.size(); j++) {
+		// latitude
+		double y = lats[j];
+		if (y >= ymin && y <= ymax) {
+			label = QString::number(qAbs(y), 'f', 0);
+			if (y > 0) 		label += "N";
+			else if (y < 0) label += "S";
+			QGraphicsSimpleTextItem* lonLabel = new QGraphicsSimpleTextItem();
+			lonLabel->setText(label);
+			lonLabel->setFont(QFont("helvetica", 11));
+			// turn off transformations. The label will now draw with local scale
+			lonLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+			lonLabel->setPos(xmin, y);
+			_gridGroup->addToGroup(lonLabel);
+		}
 	}
 
 	// make them visible based on the current choice.
