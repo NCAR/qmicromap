@@ -174,9 +174,6 @@ public:
 	/// Set the mouse interaction mode.
 	/// @param mode The mouse mode.
 	void setMouseMode(MOUSE_MODE mode);
-    /// Override the scale() function so that we can redraw the
-    /// grid when zooming is effected through scaling.
-    virtual void scale(qreal sx, qreal sy);
 
 public slots:
 	/// Turn the feature labels on and off.

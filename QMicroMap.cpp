@@ -207,18 +207,6 @@ void QMicroMap::grid(int on) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::scale(qreal sx, qreal sy) {
-
-	// perform the scaling
-	QGraphicsView::scale(sx, sy);
-
-	// redraw the grid if necessary
-	QRectF viewRect = mapToScene(viewport()->geometry()).boundingRect();
-	// draw the grid
-	drawGrid(viewRect);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawFeatures() {
 
 	// Remove all existing items from the scene
@@ -430,9 +418,9 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 			latLabel->setFont(QFont("helvetica", 11));
 			// turn off transformations. The label will now draw with local scale
 			latLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-			double xOffset = (xmax - xmin) * 5 / 360;
+			//double xOffset = (xmax - xmin) * 5 / 360;
 			double yOffset = (ymax - ymin) * 4 / 180;
-			latLabel->setPos(x-xOffset, ymin+yOffset);
+			latLabel->setPos(x, ymin+yOffset);
 			_gridGroup->addToGroup(latLabel);
 		}
 	}
@@ -643,4 +631,7 @@ void QMicroMap::reset() {
 
 	QRectF scenerect = _zoomRectStack.top();
 	fitInView(scenerect);
+
+	// redraw the grid
+	drawGrid(scenerect);
 }
