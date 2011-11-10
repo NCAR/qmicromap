@@ -35,15 +35,6 @@ _mm(mm),
 _scale(scale),
 _aspectRatio(1.0)
 {
-	_text[N] = "";
-	_text[NE] = "";
-	_text[E] = "";
-	_text[SE] = "";
-	_text[S] = "";
-	_text[SW] = "";
-	_text[W] = "";
-	_text[NW] = "";
-
 	setPos(_x, _y);
 
 	setAcceptedMouseButtons(Qt::LeftButton);
@@ -285,11 +276,6 @@ void QStationModelGraphicsItem::xyang(QPointF p, double angle, double length, QP
 	double deltaY = length * sin(d) / _aspectRatio;
 
 	newP = QPointF(p.x() + deltaX, p.y() - deltaY);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::setText(TEXT_POS pos, QString text) {
-	_text[pos] = text;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

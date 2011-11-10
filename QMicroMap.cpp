@@ -351,13 +351,13 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 	double h = viewRect.height();
 	// get dimension of the viewport (note: y axis is inverted)
 	double xmin = viewRect.topLeft().x();
-	if (xmin < -180) xmin = -180;
+	if (xmin < _xmin) xmin = _xmin;
 	double ymin = viewRect.topLeft().y();
-	if (ymin < -180) ymin = -180;
+	if (ymin < _ymin) ymin = _ymin;
 	double xmax = viewRect.bottomRight().x();
-	if (xmax > 180) xmax = 180;
+	if (xmax > _xmax) xmax = _xmax;
 	double ymax = viewRect.bottomRight().y();
-	if (ymax > 180) ymax = 180;
+	if (ymax > _ymax) ymax = _ymax;
 
 	// determine the grid spacing. It will be 1, 2, 5, 10, 15, 30 degrees
 	// latitude.  try for approx. 5 segments in latitude.
@@ -545,10 +545,35 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			}
 			_rubberBand->hide();
 			QRect bandrect = _rubberBand->geometry();
-			double bandh = bandrect.height();
-			double bandw = bandrect.width();
-			double viewh = viewport()->height();
-			double vieww = viewport()->width();
+
+			double viewh = static_cast<double>(viewport()->height());
+			double vieww = static_cast<double>(viewport()->width());
+			// viewport aspect ratio
+			double sceneAspectRatio = vieww / viewh;
+			double bandh = static_cast<double>(bandrect.height());
+			double bandw = static_cast<double>(bandrect.width());
+			// band aspect ratio
+			double bandAspectRatio = bandw / bandh;
+
+			// try to retain the aspect ratio of the scene
+			if (bandAspectRatio > sceneAspectRatio) {
+				// shrink band width
+				int newbandw = sceneAspectRatio * bandh;
+				int deltaw = (bandw - newbandw) / 2;
+				// adjust the band
+				bandrect.adjust(deltaw, 0, -deltaw, 0);
+			}
+			else if (bandAspectRatio < sceneAspectRatio) {
+				// shrink band height
+				int newbandh = bandw / sceneAspectRatio;
+				int deltah = (bandh - newbandh) / 2;
+				// adjust the band
+				bandrect.adjust(0, deltah, 0, -deltah);
+			}
+
+			// get adjusted band dimension
+			bandh = static_cast<double>(bandrect.height());
+			bandw = static_cast<double>(bandrect.width());
 
 			// make sure that the user has selected at least 5 percent of the scene
 			// in both x and y directions.

@@ -118,10 +118,6 @@ public:
 	virtual ~QStationModelGraphicsItem();
 	/// Paint the station model.
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    /// Assign the text to a given sector.
-    /// @param pos The sector position indicator.
-    /// @param text The text which is assigned to this position.
-    void setText(TEXT_POS pos, QString text);
 
 protected:
 	/// @return The station model bounding box.
