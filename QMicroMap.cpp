@@ -226,7 +226,7 @@ void QMicroMap::drawFeatures() {
 					geometryColumn,
 					_xmin, _ymin, _xmax, _ymax,
 					nameColumn);
-		} catch (std::string error) {
+		} catch (std::string& error) {
 			std::cout << error << std::endl;
 		}
 
