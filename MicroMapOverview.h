@@ -41,7 +41,7 @@
 /// application simply by distributing different MicroMap sqlite database
 /// files.
 ///
-/// Navigation of the geographical database is provided by the spatialite
+/// Navigation of the geographical database is provided by the spatialite (http://www.gaia-gis.it/gaia-sins/)
 /// extension to sqlite. SpatialLite implements geospatial database capabilities,
 /// supporting most of the functionality that is found in PostGIS. You
 /// could say that SpatiaLite is to sqlite as PostGIS is PostgreSQL. Note that
