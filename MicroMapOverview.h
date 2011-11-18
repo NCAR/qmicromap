@@ -7,7 +7,7 @@
 /// Most applications that need to render geophysical representations
 /// make use of network based APIs such as Google Maps,
 /// Open Street Maps or Bing to provide the desired information.
-/// Request are sent to the server for a defined region, and the result
+/// Requests are sent to the server for defined regions, and the result
 /// is returned, rendered as image tiles.
 ///
 /// MicroMap provides an alternative: a lightweight, embedded
@@ -33,23 +33,24 @@
 /// data.
 ///
 /// Management of the geographic data is provided by
-/// sqlite, "the world's most widely used database". Sqlite is a very
+/// SQLite, "the world's most widely used database". SQLite is a very
 /// lean embedded database implementation, with a C API. It manages the database as
 /// as a single file. Thus MicroMap distributes the geographic data as
-/// an sqlite database file. Different scales of data, or data that has
+/// an SQLite database file. Different scales of data, or data that has
 /// been obtained from different sources, can be swapped into a MicroMap
-/// application simply by distributing different MicroMap sqlite database
+/// application simply by distributing different MicroMap SQLite database
 /// files.
 ///
-/// Navigation of the geographical database is provided by the spatialite (http://www.gaia-gis.it/gaia-sins/)
-/// extension to sqlite. SpatialLite implements geospatial database capabilities,
+/// Navigation of the geographical database is provided by the SpatialLite
+/// (http://www.gaia-gis.it/gaia-sins/)
+/// extension to SQLite. SpatialLite implements geospatial database capabilities,
 /// supporting most of the functionality that is found in PostGIS. You
-/// could say that SpatiaLite is to sqlite as PostGIS is PostgreSQL. Note that
+/// could say that SpatiaLite is to SQLite as PostGIS is PostgreSQL. Note that
 /// the standard for the SQL geographical functionality is established by the
 /// Open Geospatial Consortium OGC.
 ///
 /// Data access and navigation are purposely separated from the graphical presentation.
-/// A third component of MicroMap is QGeoMap, which is a Qt toolbox that
+/// A third component of MicroMap is QMicroMap, which is a Qt toolbox that
 /// provides graphical rendering using the Qt framework.
 ///
 /// @section MicroMapDataSources Data Sources
@@ -95,7 +96,7 @@
 ///
 /// @section MicroMapNotes Introductory Notes About SQLite and SpatiaLite
 ///
-/// As described above, the two core components used in MicroMap are sqlite and
+/// As described above, the two core components used in MicroMap are SQLite and
 /// SpatiaLite. Both of these packages are distributed with libraries and header
 /// files for building custom applications.
 ///
