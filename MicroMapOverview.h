@@ -268,7 +268,7 @@
 /// <ul>
 /// <li> port install proj
 /// <li> port install geos
-/// </ul
+/// </ul>
 /// Note about iconv and ginstall: iconv is used by a bunch of the Mac Ports tools, and
 /// will probably get installed when you install them. However, the Mac Ports version is 1.13 (or higher). On
 /// Lion, Apple has provided /usr/lib/libiconv.dylib, which is v1.11. Some of the Mac libraries are counting on this
