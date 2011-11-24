@@ -216,7 +216,7 @@
 ///
 /// @section MicroMapSpatiaLite SpatiaLite and SpatialDB
 ///
-/// SpatiaLite is hosted at http://www.gaia-gis.it/spatialite.
+/// SpatiaLite is hosted at http://www.gaia-gis.it/gaia-sins/.
 ///
 /// MicroMap has worked hard
 /// to insure that the same source code and binary installation methods are followed for
@@ -226,8 +226,11 @@
 /// MicroMap has wrapped the spatialite C API in a C++ wrapper class; see SpatiaLiteDB.
 ///
 /// SpatiaLite depends on several other GIS components. There are various methods,
-/// depending on platform type, for installing them. The dependencies are:
+/// depending on platform type, for installing them. Some platforms have some of the
+/// components available by default. The dependencies are:
 /// <ul>
+/// <li> freexl: A library for accessing Excel files. Created by the SpatiaLite project,
+/// it is required as of SpatiaLite v3.
 /// <li> geos: Geometry Engine, Open Source
 /// <li> proj: Cartographic Projections Library
 /// <li> iconv: Character Set Conversion
@@ -239,8 +242,12 @@
 /// <li> expat
 /// </ul>
 ///
-/// The libspatialite amalgamation source distribution is found at: http://www.gaia-gis.it/spatialite-2.4.0-4/libspatialite-amalgamation-2.4.0.zip.
+/// The libspatialite amalgamation source distribution is found at: http://www.gaia-gis.it/gaia-sins/.
 /// Download and unpack this distribution.
+///
+/// As of SpatiaLite version 3, the freexl library is also required. Freexl provides access to
+/// Excel spreadsheet files. This library is obtained from the
+/// same download site. Installation follows the standard ./configure; make; make install routine.
 ///
 /// @subsection x0 To install libspatialite on Linux (Centos):
 /// Install the dependencies. For some reason, iconv is not avaiable and doesn't seem to be needed.
