@@ -357,8 +357,6 @@ _offset(offset)
 		setVjustification(BOTTOM, BOTTOM, TOP, BOTTOM);
 		break;
 	}
-	//std::cout << "wdir " << wdir << ", dir " << dir << ", wind " << _windSector << ", alt " << _sector[PHT];
-	//std::cout << ", tdry " << _sector[TDRY] << ", rh " << _sector[RH] << ", time " << _sector[TIME] << std::endl;
 
 	_hjust[TDRY] = RIGHT;
 	_hjust[RH] = RIGHT;
@@ -424,5 +422,3 @@ void QStationModelGraphicsItem::hidepart(ulong part) {
 	_parts &= ~std::bitset<16>(part);
 	update();
 }
-
-

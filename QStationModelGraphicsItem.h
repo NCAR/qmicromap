@@ -89,9 +89,6 @@ class QStationModelGraphicsItem: public QGraphicsItem
 	};
 
 public:
-	/// Text location indicators
-	enum TEXT_POS { N, NE, E, SE, S, SW, W, NW };
-
 	std::bitset<16> _parts;
 	/// Keys for each of the station model elements
 	enum MODEL_PART {
@@ -206,8 +203,6 @@ protected:
     int _hh;
 	/// The minute time of the observation.
     int _mm;
-    /// This map identifies the sectors that the
-    std::map<TEXT_POS, QString> _text;
     int _scale;
     /// The aspect ration (Y/X) of the current viewport. It allows us to
     /// present angles correctly.
