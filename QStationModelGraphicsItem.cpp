@@ -15,25 +15,27 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 		double spdKnots,
 		double dirMet,
 		double tDryC,
-		double RH,
+		double DP,
 		double presOrHeight,
 		bool isPres,
 		int hh,
 		int mm,
-		double scale) :
+		double scale,
+		ulong parts) :
 QGraphicsItem(),
 _x(x),
 _y(y),
 _spdKnots(spdKnots),
 _dirMet(dirMet),
 _tDryC(tDryC),
-_RH(RH),
+_DP(DP),
 _presOrHeight(presOrHeight),
 _isPres(isPres),
 _hh(hh),
 _mm(mm),
 _scale(scale),
-_aspectRatio(1.0)
+_aspectRatio(1.0),
+_parts(parts)
 {
 	setPos(_x, _y);
 
@@ -94,7 +96,12 @@ void QStationModelGraphicsItem::paint(QPainter *painter,
 	QPen oldPen = painter->pen();
 
 	painter->setPen(QPen("black"));
-	drawWindFlag(painter);
+	if (_parts.test(MODEL_WIND_BIT)) {
+		drawWindFlag(painter);
+	} else {
+		double dotRadius = 3;
+		painter->drawEllipse(-dotRadius, -dotRadius, 2 * dotRadius, 2 * dotRadius);
+	}
 
 	painter->setPen(QPen("blue"));
 	drawTextFields(painter);
@@ -111,7 +118,7 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	// Draw each text field
 	QString tdry = QString("%1").arg(_tDryC, 0, 'f', 1);
 
-	QString rh = QString("%1").arg(_RH, 0, 'f', 1);
+	QString rh = QString("%1").arg(_DP, 0, 'f', 1);
 
 	double presOrHeight = _presOrHeight;
 	if (_isPres) {
@@ -128,14 +135,18 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
 
-	if (_tDryC != -999.0)
+	if (_tDryC != -999.0 && _parts.test(MODEL_TDRY_BIT)) {
 		drawTextField(painter, sectors, TextSectors::TDRY, tdry);
-	if (_RH != -999.0)
+	}
+	if (_DP != -999.0 && _parts.test(MODEL_DP_BIT)) {
 		drawTextField(painter, sectors, TextSectors::RH, rh);
-	if (_presOrHeight != -999.0)
+	}
+	if (_presOrHeight != -999.0 && _parts.test(MODEL_PRESHT_BIT)) {
 		drawTextField(painter, sectors, TextSectors::PHT, pht);
-
-	drawTextField(painter, sectors, TextSectors::TIME, time);
+	}
+	if (_parts.test(MODEL_TIME_BIT)) {
+		drawTextField(painter, sectors, TextSectors::TIME, time);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -402,3 +413,16 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates()
 		_y[*i] = -sin(angle) * _offset;
 	}
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::showpart(ulong part) {
+	_parts |= std::bitset<16>(part);
+	update();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::hidepart(ulong part) {
+	_parts &= ~std::bitset<16>(part);
+	update();
+}
+
+

@@ -10,6 +10,8 @@
 
 #include <QtGui>
 #include <map>
+#include <set>
+#include <bitset>
 
 /// @brief A QGraphicsItem representation of the meteorological station model.
 ///
@@ -90,13 +92,31 @@ public:
 	/// Text location indicators
 	enum TEXT_POS { N, NE, E, SE, S, SW, W, NW };
 
+	std::bitset<16> _parts;
+	/// Keys for each of the station model elements
+	enum MODEL_PART {
+		MODEL_WIND   = 1,
+		MODEL_TDRY   = 2,
+		MODEL_DP     = 4,
+		MODEL_PRESHT = 8,
+		MODEL_TIME   = 16,
+		MODEL_ALL    = 0xFF
+	};
+	enum {
+		MODEL_WIND_BIT = 0,
+		MODEL_TDRY_BIT = 1,
+		MODEL_DP_BIT = 2,
+		MODEL_PRESHT_BIT = 3,
+		MODEL_TIME_BIT = 4
+	};
+
 	/// Constructor
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
 	/// @param y Y location in the QGraphicsscene coordinate system, typically latitude.
 	/// @param spdKnots Wind speed in knots.
 	/// @param dirMet Meteorological wind direction, magnetic, pointing into the wind.
 	/// @param tDryC Temperature in degC.
-	/// @param RH Relative humidity, in percent.
+	/// @param DP Dew point, in degC.
 	/// @param presOrHeight Pressure in mb, or height in meters. The isPres flag identifies which it is.
 	/// @param isPres Set true if presOrHeight is a pressure value, false if it is a height value.
 	/// @param hh The hour time of observation.
@@ -108,16 +128,25 @@ public:
 			double spdKnots,
 			double dirMet,
 			double tDryC,
-			double RH,
+			double DP,
 			double presOrHeight,
 			bool isPres,
 			int hh,
 			int mm,
-			double scale);
+			double scale,
+			ulong parts = MODEL_ALL);
 	/// Destructor
 	virtual ~QStationModelGraphicsItem();
 	/// Paint the station model.
     virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    /// Enable the painting of a model part. Use bitwise combinations of MODEL_PART
+    /// constants to specify a bit mask to select specific parts.
+    /// @param part The part to show.
+	virtual void showpart(ulong part);
+    /// Disable the painting of a model part. Use bitwise combinations of MODEL_PART
+    /// constants to specify a bit mask to select specific parts.
+    /// @param part The part to hide.
+	virtual void hidepart(ulong part);
 
 protected:
 	/// @return The station model bounding box.
@@ -168,7 +197,7 @@ protected:
     /// Temperature in degC
     double _tDryC;
     /// RH in percent.
-    double _RH;
+    double _DP;
 	/// Pressure in mb, or height in meters. The isPres flag identifies which it is.
     double _presOrHeight;
 	/// Set true if presOrHeight is a pressure value, false if it is a height value.
