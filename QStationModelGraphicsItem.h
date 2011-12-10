@@ -35,8 +35,10 @@
 /// those of the viewport, which I believe are screen pixels. They
 /// are referenced to the zero origin of the item however. setPos() is
 /// used to set the position in the graphics scene.
-class QStationModelGraphicsItem: public QGraphicsItem
+class QStationModelGraphicsItem: public QObject, public QGraphicsItem
 {
+	Q_OBJECT
+
 	/// @brief TextSectors is a helper class which locates the texts so that
 	/// they don't interfere with the wind barb. A sector scheme is used. The
 	/// sector numbers start at zero, and increase by one for each 22.5 degree
@@ -119,6 +121,7 @@ public:
 	/// @param hh The hour time of observation.
 	/// @param mm The minute time of the observation.
 	/// @param scale The graphical size of the station model, in viewport coordinates.
+	/// @param parts The station model parts which should be initially displayed.
 	QStationModelGraphicsItem(
 			double x,
 			double y,
@@ -145,6 +148,19 @@ public:
     /// @param part The part to hide.
 	virtual void hidepart(ulong part);
 
+public slots:
+	/// Called when one of the actions is chosen from the context menu.
+    /// @param action The action that was invoked.
+    void contextAction(QAction * action);
+
+signals:
+	/// This signal is emitted when the "process" action is selected from
+	/// the context menu
+    void process(QStationModelGraphicsItem* sm);
+    /// This signal is emitted when the "remove" action is selected from
+    /// the context menu.
+    void remove(QStationModelGraphicsItem* sm);
+
 protected:
 	/// @return The station model bounding box.
     QRectF boundingRect() const;
@@ -157,6 +173,8 @@ protected:
     /// Handle the mouse press event. Currently, no action is taken.
     /// @param event The event.
     void mousePressEvent (QGraphicsSceneMouseEvent* event);
+    /// Capture the context menu event.
+	void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 	/// Draw a standard meteorological wind barb, representing the speed and direction of
     /// the wind. The barb points towards the direction the wind is coming from. Flags on
     /// the barb cumulatively add to the wind speed: 1/2 line is 5, a whole line is 10,
@@ -207,6 +225,10 @@ protected:
     /// The aspect ration (Y/X) of the current viewport. It allows us to
     /// present angles correctly.
     double _aspectRatio;
+    /// Activating this action results in a processFile signal being emmitted.
+    QAction* _processAction;
+    /// Activating this action results in a removeStation signal being emmitted
+    QAction* _removeAction;
 
 };
 

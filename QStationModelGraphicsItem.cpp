@@ -46,6 +46,10 @@ _parts(parts)
 	setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 	setFlag(QGraphicsItem::ItemIsFocusable, true);
 
+	// create the actions
+    _processAction = new QAction("Process", this);
+    _removeAction  = new QAction("Remove" , this);
+
 	// accept hover events
 	setAcceptHoverEvents(true);
 }
@@ -411,6 +415,7 @@ void QStationModelGraphicsItem::TextSectors::createCoordinates()
 		_y[*i] = -sin(angle) * _offset;
 	}
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::showpart(ulong part) {
 	_parts |= std::bitset<16>(part);
@@ -421,4 +426,36 @@ void QStationModelGraphicsItem::showpart(ulong part) {
 void QStationModelGraphicsItem::hidepart(ulong part) {
 	_parts &= ~std::bitset<16>(part);
 	update();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+    // create the context menu
+	QMenu menu;
+
+	// Add actions
+    menu.addAction(_removeAction);
+    menu.addAction(_processAction);
+
+    // capture the action triggered signal
+    QObject::connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(contextAction(QAction*)));
+
+    // display the menu
+    QAction *selectedAction = menu.exec(event->screenPos());
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QStationModelGraphicsItem::contextAction(QAction* action) {
+
+	if (action == _processAction) {
+		std::cout << "Process" << std::endl;
+		emit process(this);
+	}
+
+	if (action == _removeAction) {
+		std::cout << "Remove" << std::endl;
+		emit process(this);
+	}
 }
