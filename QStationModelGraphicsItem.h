@@ -91,8 +91,7 @@ class QStationModelGraphicsItem: public QObject, public QGraphicsItem
 	};
 
 public:
-	std::bitset<16> _parts;
-	/// Keys for each of the station model elements
+	/// Bit fields for each of the station model elements.
 	enum MODEL_PART {
 		MODEL_WIND   = 1,
 		MODEL_TDRY   = 2,
@@ -101,14 +100,6 @@ public:
 		MODEL_TIME   = 16,
 		MODEL_ALL    = 0xFF
 	};
-	enum {
-		MODEL_WIND_BIT = 0,
-		MODEL_TDRY_BIT = 1,
-		MODEL_DP_BIT = 2,
-		MODEL_PRESHT_BIT = 3,
-		MODEL_TIME_BIT = 4
-	};
-
 	/// Constructor
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
 	/// @param y Y location in the QGraphicsscene coordinate system, typically latitude.
@@ -122,6 +113,7 @@ public:
 	/// @param mm The minute time of the observation.
 	/// @param scale The graphical size of the station model, in viewport coordinates.
 	/// @param parts The station model parts which should be initially displayed.
+	/// Create a mask using items from MODEL_PART.
 	QStationModelGraphicsItem(
 			double x,
 			double y,
@@ -162,6 +154,16 @@ signals:
     void remove(QStationModelGraphicsItem* sm);
 
 protected:
+	/// Most references to a particular bit in a bitmask are done using the
+    /// bit number, which are defined here for the model parts. The following
+    /// enum must correspond to enum MODEL_PART.
+    enum {
+		MODEL_WIND_BIT = 0,
+		MODEL_TDRY_BIT = 1,
+		MODEL_DP_BIT = 2,
+		MODEL_PRESHT_BIT = 3,
+		MODEL_TIME_BIT = 4
+	};
 	/// @return The station model bounding box.
     QRectF boundingRect() const;
     /// Handle the hover enter event. Currently, no action is taken.
@@ -222,6 +224,8 @@ protected:
 	/// The minute time of the observation.
     int _mm;
     int _scale;
+	/// The parts of the model to display.
+    std::bitset<16> _parts;
     /// The aspect ration (Y/X) of the current viewport. It allows us to
     /// present angles correctly.
     double _aspectRatio;
