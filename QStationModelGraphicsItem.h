@@ -101,6 +101,7 @@ public:
 		MODEL_ALL    = 0xFF
 	};
 	/// Constructor
+	/// @param filename The sounding filename for the station model
 	/// @param x X location in the QGraphicsscene coordinate system, typically longitude.
 	/// @param y Y location in the QGraphicsscene coordinate system, typically latitude.
 	/// @param spdKnots Wind speed in knots.
@@ -115,6 +116,7 @@ public:
 	/// @param parts The station model parts which should be initially displayed.
 	/// Create a mask using items from MODEL_PART.
 	QStationModelGraphicsItem(
+			QString filename,
 			double x,
 			double y,
 			double spdKnots,
@@ -148,10 +150,10 @@ public slots:
 signals:
 	/// This signal is emitted when the "process" action is selected from
 	/// the context menu
-    void process(QStationModelGraphicsItem* sm);
+    void process(QString filename);
     /// This signal is emitted when the "remove" action is selected from
     /// the context menu.
-    void remove(QStationModelGraphicsItem* sm);
+    void remove(QString filename);
 
 protected:
 	/// Most references to a particular bit in a bitmask are done using the
@@ -201,6 +203,8 @@ protected:
 	/// @param length The length of the line, in Rect units.
 	/// @param newP The calculated endpoint is returned here.
     void xyang(QPointF p, double angle, double length, QPointF& newP);
+    /// The sounding filename for the station model
+    QString _filename;
     /// The center x location , in scene coordinates
     double _x;
     /// The center y location, in scene coordinates

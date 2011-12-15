@@ -10,6 +10,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QStationModelGraphicsItem::QStationModelGraphicsItem(
+		QString filename,
 		double x,
 		double y,
 		double spdKnots,
@@ -23,6 +24,7 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 		double scale,
 		ulong parts) :
 QGraphicsItem(),
+_filename(filename),
 _x(x),
 _y(y),
 _spdKnots(spdKnots),
@@ -443,19 +445,16 @@ void QStationModelGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent 
 
     // display the menu
     QAction *selectedAction = menu.exec(event->screenPos());
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QStationModelGraphicsItem::contextAction(QAction* action) {
-
+void QStationModelGraphicsItem::contextAction(QAction* action)
+{
 	if (action == _processAction) {
-		std::cout << "Process" << std::endl;
-		emit process(this);
+		emit process(_filename);
 	}
 
 	if (action == _removeAction) {
-		std::cout << "Remove" << std::endl;
-		emit process(this);
+		emit remove(_filename);
 	}
 }
