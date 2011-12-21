@@ -481,22 +481,24 @@ void QMicroMap::timerEvent(QTimerEvent *event) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::mousePressEvent(QMouseEvent *event) {
 
-	if (_mouseMode == MOUSE_SELECT) {
+	switch (_mouseMode) {
+	case MOUSE_ZOOM:
+		_rbOrigin = event->pos();
+		if (event->button() == Qt::LeftButton) {
+			if (!_rubberBand)
+				_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
+			_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
+			_rubberBand->show();
+		}
+		break;
+
+	case MOUSE_PAN:
+	case MOUSE_SELECT:
 		QGraphicsView::mousePressEvent(event);
-		return;
+		break;
 	}
 
-	if (_mouseMode == MOUSE_PAN) {
-		// mouse press on panning.
-		QGraphicsView::mousePressEvent(event);
-	} else {
-		_rbOrigin = event->pos();
-		if (!_rubberBand) {
-			_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-		}
-		_rubberBand->setGeometry(QRect(_rbOrigin, QSize()));
-		_rubberBand->show();
-	}
+	return;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -504,9 +506,8 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 
 	switch (_mouseMode) {
 	case MOUSE_ZOOM:
-		if (!_rubberBand) {
+		if (!_rubberBand)
 			_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-		}
 		_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
 		event->accept();
 		break;
@@ -540,9 +541,8 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 		switch (_mouseMode) {
 		case MOUSE_ZOOM: {
 			// mouse release on zooming
-			if (!_rubberBand) {
+			if (!_rubberBand)
 				_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
-			}
 			_rubberBand->hide();
 			QRect bandrect = _rubberBand->geometry();
 
