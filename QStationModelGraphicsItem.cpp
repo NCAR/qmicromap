@@ -37,6 +37,7 @@ _hh(hh),
 _mm(mm),
 _scale(scale),
 _aspectRatio(1.0),
+_setHighlighted(false),
 _parts(parts)
 {
 	setPos(_x, _y);
@@ -74,6 +75,8 @@ void QStationModelGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent * event
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
+	_setHighlighted = true;
+	update(boundingRect());
 
 	QGraphicsItem::hoverEnterEvent(event);
 }
@@ -83,6 +86,8 @@ void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event
 
 	// Event handling is just stubbed out here, until we find
 	// something useful to do with it.
+	_setHighlighted = false;
+	update(boundingRect());
 
 	QGraphicsItem::hoverEnterEvent(event);
 }
@@ -90,8 +95,8 @@ void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QRectF QStationModelGraphicsItem::boundingRect() const {
 
+	// This defines the area occupied by the station model.
 	QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
-
 	return r;
 }
 
@@ -100,6 +105,11 @@ void QStationModelGraphicsItem::paint(QPainter *painter,
 		const QStyleOptionGraphicsItem *option, QWidget *widget) {
 
 	QPen oldPen = painter->pen();
+
+	if (_setHighlighted)
+		painter->setBrush(QBrush("red"));
+	else
+		painter->setBrush(Qt::NoBrush);
 
 	painter->setPen(QPen("black"));
 	if (_parts.test(MODEL_WIND_BIT)) {
@@ -185,8 +195,7 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 	painter->drawEllipse(-dotRadius, -dotRadius, 2 * dotRadius, 2 * dotRadius);
 	if (_spdKnots == 0.0) {
 		// calm winds, draw double circle
-		painter->drawEllipse(-1.5 * dotRadius, -1.5 * dotRadius, 3 * dotRadius,
-				3 * dotRadius);
+		painter->drawEllipse(-1.5 * dotRadius, -1.5 * dotRadius, 3 * dotRadius, 3 * dotRadius);
 	}
 
 	if (_spdKnots < 0.1) {
@@ -214,17 +223,12 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 	//	convert from m/s to knots.
 	//double w = _wspd*1.94;
 	double w = _spdKnots;
-
 	double triLength = symScale / sin(60 * 3.14159 / 180);
-
 	double delta;
 
 	// plot the 50 symbols, which will be equilateral triangles
-
 	bool did50 = 0;
-
 	delta = 50;
-
 	while (w >= delta) {
 		xyang(p1, d - 120, triLength, p2);
 		painter->drawLine(p1, p2);
@@ -244,11 +248,8 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 	}
 
 	// plot the 10 symbols, which will be full length flags
-
 	delta = 10;
-
 	while (w >= delta) {
-
 		xyang(p1, d - 90, symScale, p2);
 		painter->drawLine(p1, p2);
 		p1 = p2;
@@ -264,11 +265,8 @@ void QStationModelGraphicsItem::drawWindFlag(QPainter *painter) {
 	}
 
 	// plot the 5 symbols, which will be half length flags
-
 	delta = 5;
-
 	while (w >= delta) {
-
 		xyang(p1, d - 90, symScale / 2, p2);
 		painter->drawLine(p1, p2);
 		p1 = p2;

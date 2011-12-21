@@ -233,9 +233,11 @@ protected:
     /// The aspect ration (Y/X) of the current viewport. It allows us to
     /// present angles correctly.
     double _aspectRatio;
-    /// Activating this action results in a processFile signal being emmitted.
+    /// Flag to set the station model highlighted
+    bool _setHighlighted;
+    /// Activating this action results in a processFile signal being emitted.
     QAction* _processAction;
-    /// Activating this action results in a removeStation signal being emmitted
+    /// Activating this action results in a removeStation signal being emitted
     QAction* _removeAction;
 
 };

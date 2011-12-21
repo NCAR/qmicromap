@@ -509,7 +509,7 @@ void QMicroMap::mouseMoveEvent(QMouseEvent *event) {
 		if (!_rubberBand)
 			_rubberBand = new QRubberBand(QRubberBand::Rectangle, this);
 		_rubberBand->setGeometry(QRect(_rbOrigin, event->pos()).normalized());
-		event->accept();
+		QGraphicsView::mouseMoveEvent(event);
 		break;
 
 	case MOUSE_PAN:
