@@ -168,6 +168,7 @@ protected:
 	};
 	/// @return The station model bounding box.
     QRectF boundingRect() const;
+    QPainterPath shape() const;
     /// Handle the hover enter event. Currently, no action is taken.
     /// @param event The event.
     void hoverEnterEvent(QGraphicsSceneHoverEvent* event) ;

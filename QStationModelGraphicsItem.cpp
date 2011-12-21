@@ -63,18 +63,12 @@ QStationModelGraphicsItem::~QStationModelGraphicsItem() {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::mousePressEvent(QGraphicsSceneMouseEvent * event) {
-
-	// Event handling is just stubbed out here, until we find
-	// something useful to do with it.
-
 	QGraphicsItem::mousePressEvent(event);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent * event) {
 
-	// Event handling is just stubbed out here, until we find
-	// something useful to do with it.
 	_setHighlighted = true;
 	update(boundingRect());
 
@@ -84,8 +78,6 @@ void QStationModelGraphicsItem::hoverEnterEvent(QGraphicsSceneHoverEvent * event
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event) {
 
-	// Event handling is just stubbed out here, until we find
-	// something useful to do with it.
 	_setHighlighted = false;
 	update(boundingRect());
 
@@ -96,10 +88,16 @@ void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event
 QRectF QStationModelGraphicsItem::boundingRect() const {
 
 	// This defines the area occupied by the station model.
-	QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
+	QRectF r(-_scale, -_scale, 2*_scale, 2*_scale);
 	return r;
 }
 
+QPainterPath QStationModelGraphicsItem::shape() const
+{
+    QPainterPath path;
+    path.addEllipse(QRectF(-10, -10, 20, 20));
+    return path;
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::paint(QPainter *painter,
 		const QStyleOptionGraphicsItem *option, QWidget *widget) {
