@@ -22,7 +22,9 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 		int hh,
 		int mm,
 		double scale,
-		ulong parts) :
+		ulong parts,
+		std::string removeText,
+		std::string processText) :
 QGraphicsItem(),
 _filename(filename),
 _x(x),
@@ -38,7 +40,9 @@ _mm(mm),
 _scale(scale),
 _aspectRatio(1.0),
 _setHighlighted(false),
-_parts(parts)
+_parts(parts),
+_removeText(removeText),
+_processText(processText)
 {
 	setPos(_x, _y);
 
@@ -50,8 +54,8 @@ _parts(parts)
 	setFlag(QGraphicsItem::ItemIsFocusable, true);
 
 	// create the actions
-    _processAction = new QAction("Open it with Aspen", this);
-    _removeAction  = new QAction("Remove it from synoptic map" , this);
+    _processAction = new QAction(_processText.c_str(), this);
+    _removeAction  = new QAction(_removeText.c_str() , this);
 
 	// accept hover events
 	setAcceptHoverEvents(true);

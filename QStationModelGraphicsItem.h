@@ -35,6 +35,15 @@
 /// those of the viewport, which I believe are screen pixels. They
 /// are referenced to the zero origin of the item however. setPos() is
 /// used to set the position in the graphics scene.
+///
+/// QStationModelGraphicsItem provides context menu handling, with two entries
+/// in the context menu. These actions are named process and remove, although they
+/// could be used for any purpose. When they are selected from the context menu,
+/// a process() or remove() signal is emitted. The default menu labels ("Process"
+/// and "Remove") can be overridden in the constructor.
+/// @todo Make the context menu scheme more generic. Always providing
+/// a two entry context menu will not be appropriate for all applications
+/// and is unnecessarily restrictive.
 class QStationModelGraphicsItem: public QObject, public QGraphicsItem
 {
 	Q_OBJECT
@@ -113,8 +122,10 @@ public:
 	/// @param hh The hour time of observation.
 	/// @param mm The minute time of the observation.
 	/// @param scale The graphical size of the station model, in viewport coordinates.
-	/// @param parts The station model parts which should be initially displayed.
-	/// Create a mask using items from MODEL_PART.
+	/// @param parts The station model parts which should be initially displayed. Created
+	/// from a mask using items from MODEL_PART.
+	/// @param removeText The text to be displayed on the context menu for the remove action.
+	/// @param processText The text to be displayed on the context menu for the process action.
 	QStationModelGraphicsItem(
 			QString filename,
 			double x,
@@ -128,7 +139,9 @@ public:
 			int hh,
 			int mm,
 			double scale,
-			ulong parts = MODEL_ALL);
+			ulong parts = MODEL_ALL,
+			std::string removeText = "Remove",
+			std::string processText = "Process");
 	/// Destructor
 	virtual ~QStationModelGraphicsItem();
 	/// Paint the station model.
@@ -239,8 +252,12 @@ protected:
     double _aspectRatio;
     /// Flag to set the station model highlighted
     bool _setHighlighted;
+	/// The text to be displayed on the context menu for the remove action.
+    std::string _removeText;
     /// Activating this action results in a processFile signal being emitted.
     QAction* _processAction;
+	/// The text to be displayed on the context menu for the process action.
+    std::string _processText;
     /// Activating this action results in a removeStation signal being emitted
     QAction* _removeAction;
 
