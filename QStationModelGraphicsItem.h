@@ -167,7 +167,10 @@ protected:
 		MODEL_TIME_BIT = 4
 	};
 	/// @return The station model bounding box.
+    /// It is used when painting the station model
     QRectF boundingRect() const;
+    /// @return The shape path (a cirlce close to the center) of station model
+    /// It is used for hover detection and tooltip
     QPainterPath shape() const;
     /// Handle the hover enter event. Currently, no action is taken.
     /// @param event The event.

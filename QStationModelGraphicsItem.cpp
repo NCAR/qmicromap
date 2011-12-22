@@ -50,8 +50,8 @@ _parts(parts)
 	setFlag(QGraphicsItem::ItemIsFocusable, true);
 
 	// create the actions
-    _processAction = new QAction("Process", this);
-    _removeAction  = new QAction("Remove" , this);
+    _processAction = new QAction("Open it with Aspen", this);
+    _removeAction  = new QAction("Remove it from synoptic map" , this);
 
 	// accept hover events
 	setAcceptHoverEvents(true);
@@ -85,19 +85,21 @@ void QStationModelGraphicsItem::hoverLeaveEvent(QGraphicsSceneHoverEvent * event
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-QRectF QStationModelGraphicsItem::boundingRect() const {
-
+QRectF QStationModelGraphicsItem::boundingRect() const
+{
 	// This defines the area occupied by the station model.
-	QRectF r(-_scale, -_scale, 2*_scale, 2*_scale);
+	QRectF r(-_scale, -_scale, 2 * _scale, 2 * _scale);
 	return r;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 QPainterPath QStationModelGraphicsItem::shape() const
 {
     QPainterPath path;
     path.addEllipse(QRectF(-10, -10, 20, 20));
     return path;
 }
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::paint(QPainter *painter,
 		const QStyleOptionGraphicsItem *option, QWidget *widget) {
