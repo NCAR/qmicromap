@@ -82,6 +82,7 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_pointsGroup(0),
 	_gridOn(true),
 	_gridGroup(0),
+	_levelLabel(0),
 	_mouseMode(MOUSE_ZOOM),
 	_rubberBand(0),
 	_rbOrigin(100,100),
@@ -446,6 +447,20 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 		_gridGroup->show();
 	else
 		_gridGroup->hide();
+
+	// Remove old level name label
+	if (_levelLabel)
+		_scene->removeItem(_levelLabel);
+
+	// Create and draw the new level name label
+	QString level("Station Model Level: " + _levelName);
+	_levelLabel = new QGraphicsSimpleTextItem();
+	_levelLabel->setText(level);
+	_levelLabel->setFont(QFont("helvetica", 12));
+	// turn off transformations. The label will now draw with local scale
+	_levelLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
+	_levelLabel->setPos(xmin + (xmax - xmin) * 2.0 / 3.0, ymax);
+	_scene->addItem(_levelLabel);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -659,4 +674,11 @@ void QMicroMap::reset() {
 
 	// redraw the grid
 	drawGrid(scenerect);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::setLevelName(QString levelName)
+{
+	_levelName = levelName;
+	drawGrid(_zoomRectStack.top());
 }

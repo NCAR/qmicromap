@@ -184,6 +184,9 @@ public slots:
 	void grid(int on);
 	/// Reset the display to the minimum display level.
 	void reset();
+	/// Set the selected level name for display
+	/// @param levelName The name of the selected level
+	void setLevelName(QString levelName);
 
 signals:
 	/// Emit this signal to inform others that the mouse mode has changed.
@@ -262,6 +265,10 @@ protected:
     bool _gridOn;
     /// The collection of grid lines.
     QGraphicsItemGroup* _gridGroup;
+    /// The selected level name
+    QString _levelName;
+    /// The label showing selected level name
+    QGraphicsSimpleTextItem* _levelLabel;
     /// The current mouse mode.
     MOUSE_MODE _mouseMode;
     /// The rubberband box used for zooming.
