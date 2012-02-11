@@ -8,7 +8,7 @@
 #ifndef QMICROMAP_H_
 #define QMICROMAP_H_
 
-#include <QtGui>
+#include <QtGui/QtGui>
 #include <stack>
 #include <vector>
 #include <string>

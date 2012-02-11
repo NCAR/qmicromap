@@ -20,14 +20,9 @@ def mac_qt_setup(env):
 	# Qt configuration:
 	#    the following uses the frameworks scheme available for gcc on Mac OS
 	#    to provide libraries and library paths
-	frameworkpath='/Library/Frameworks'
-	env.AppendUnique(FRAMEWORKPATH=[frameworkpath,])
-	env.AppendUnique(FRAMEWORKS=qt4Modules)
-	#    specify the include paths for the qt4 modules. It seems like the
-	#    gcc frameworks scheme should do this, but it doesn't
-	for f in qt4Modules:
-	    p = frameworkpath+'/'+f+'.framework/Headers'
-	    env.AppendUnique(CPPPATH=[p,])
+    frameworkpath='/usr/local/lib'
+    env.AppendUnique(FRAMEWORKPATH=[frameworkpath,])
+    env.AppendUnique(FRAMEWORKS=qt4Modules)
 
 libsources = Split("""
 QMicroMap.cpp

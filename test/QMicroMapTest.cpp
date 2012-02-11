@@ -48,7 +48,7 @@ _zoomInc(0.1)
 
 	for (double lat = 24.0; lat < 29.0; lat += 0.8) {
 		QStationModelGraphicsItem* sm
-			= new QStationModelGraphicsItem(lon, lat, wspd, wdir, tdry, RH, presOrHeight, isPres, hh, mm, 60);
+			= new QStationModelGraphicsItem("TestFile", lon, lat, wspd, wdir, tdry, RH, presOrHeight, isPres, hh, mm, 60);
 		wspd += 12;
 		wdir += 13;
 		lon -= 0.9;
@@ -66,7 +66,7 @@ _zoomInc(0.1)
 	hh  -= 2;
 	for (double lat = 27.0; lat >= 24.0; lat -= 0.51) {
 		QStationModelGraphicsItem* sm
-			= new QStationModelGraphicsItem(lon, lat, wspd, wdir, tdry, RH, presOrHeight, isPres, hh, mm, 60);
+			= new QStationModelGraphicsItem("TestFile", lon, lat, wspd, wdir, tdry, RH, presOrHeight, isPres, hh, mm, 60);
 		wspd += 9;
 		wdir += 13;
 		lon -= 1.8;

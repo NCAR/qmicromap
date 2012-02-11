@@ -8,7 +8,7 @@
 #ifndef QSTATIONMODELITEM_H_
 #define QSTATIONMODELITEM_H_
 
-#include <QtGui>
+#include <QtGui/QtGui>
 #include <map>
 #include <set>
 #include <bitset>
