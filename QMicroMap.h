@@ -12,7 +12,7 @@
 #include <stack>
 #include <vector>
 #include <string>
-#include "SpatiaLiteDB.h"
+#include "SpatialDB/SpatiaLiteDB.h"
 
 /////////////////////////////////////////////////////////////////////
 /// @brief A property manager for features to be rendered on the map,
