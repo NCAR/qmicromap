@@ -439,8 +439,8 @@ void QStationModelGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent 
 	QMenu menu;
 
 	// Add actions
-    menu.addAction(_removeAction);
     menu.addAction(_processAction);
+    menu.addAction(_removeAction);
 
     // capture the action triggered signal
     QObject::connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(contextAction(QAction*)));
