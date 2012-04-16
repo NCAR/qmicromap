@@ -259,6 +259,9 @@
 /// <li> yum install proj-devel
 /// <li> yum install geos-devel
 /// </ul>
+/// (note - I had to download and build geos v3 on Centos 5, because a function required
+/// by libspatialite was missing from the yum installed version 2.2.3)
+///
 /// Build the amalgamation:
 /// <ul>
 /// <li> ./configure
