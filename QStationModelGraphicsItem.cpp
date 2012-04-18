@@ -159,7 +159,7 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 		}
 	}
 	// check for negative heights, which can happen for downward extrapolated levels.
-	if (!_isPres && _presOrHeight != -999.0) {
+	if (!_isPres && _presOrHeight != -999.0 && _presOrHeight < 0.0) {
 		pht = "";
 	}
 
