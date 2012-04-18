@@ -143,14 +143,21 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 	double presOrHeight = _presOrHeight;
 	if (_isPres) {
 		if (_presOrHeight >= 1000.0) {
-			presOrHeight = _presOrHeight - 1000.0;
+			presOrHeight = 10*(_presOrHeight - 1000.0);
 		} else {
 			if (_presOrHeight >= 900.0) {
-				presOrHeight = _presOrHeight - 900.0;
+				presOrHeight = 10*(_presOrHeight - 900.0);
 			}
 		}
 	}
 	QString pht = QString("%1").arg((int)round(presOrHeight), 3, 10, QLatin1Char('0'));
+
+	// check for erroneous surface pressures
+	if (_isPres && _presOrHeight != -999.0) {
+		if (presOrHeight > 999.0 || presOrHeight < 0.0) {
+			pht = "ERR";
+		}
+	}
 
 	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
