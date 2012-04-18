@@ -158,6 +158,10 @@ void QStationModelGraphicsItem::drawTextFields(QPainter* painter) {
 			pht = "ERR";
 		}
 	}
+	// check for negative heights, which can happen for downward extrapolated levels.
+	if (!_isPres && _presOrHeight != -999.0) {
+		pht = "";
+	}
 
 	int t = _hh * 100 + _mm;
 	QString time = QString("%1").arg(t, 4, 10, QChar('0'));	// filled with leading 0's
