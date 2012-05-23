@@ -82,7 +82,8 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	_pointsGroup(0),
 	_gridOn(true),
 	_gridGroup(0),
-	_levelLabel(0),
+	_topRightLabel(0),
+	_topLeftLabel(0),
 	_mouseMode(MOUSE_ZOOM),
 	_rubberBand(0),
 	_rbOrigin(100,100),
@@ -443,24 +444,57 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 	}
 
 	// make them visible based on the current choice.
-	if (_gridOn)
+	if (_gridOn) {
 		_gridGroup->show();
-	else
+	} else {
 		_gridGroup->hide();
+	}
+}
 
-	// Remove old level name label
-	if (_levelLabel)
-		_scene->removeItem(_levelLabel);
 
-	// Create and draw the new level name label
-	QString level("Station Model Level: " + _levelName);
-	_levelLabel = new QGraphicsSimpleTextItem();
-	_levelLabel->setText(level);
-	_levelLabel->setFont(QFont("helvetica", 12));
-	// turn off transformations. The label will now draw with local scale
-	_levelLabel->setFlag(QGraphicsItem::ItemIgnoresTransformations);
-	_levelLabel->setPos(xmin + (xmax - xmin) * 2.0 / 3.0, ymax);
-	_scene->addItem(_levelLabel);
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::drawAnnotation(const QRectF viewRect) {
+
+	// get the current height of the viewport, in degrees.
+	double h = viewRect.height();
+	// get dimension of the viewport (note: y axis is inverted)
+	double xmin = viewRect.topLeft().x();
+	if (xmin < _xmin) xmin = _xmin;
+	double ymin = viewRect.topLeft().y();
+	if (ymin < _ymin) ymin = _ymin;
+	double xmax = viewRect.bottomRight().x();
+	if (xmax > _xmax) xmax = _xmax;
+	double ymax = viewRect.bottomRight().y();
+	if (ymax > _ymax) ymax = _ymax;
+
+	// Remove old annotations
+	if (_topRightLabel) {
+		delete _topRightLabel;
+		_topRightLabel = 0;
+	}
+	if (_topLeftLabel) {
+		delete _topLeftLabel;
+		_topLeftLabel = 0;
+	}
+
+	// Create and draw the new annotations
+	QGraphicsProxyWidget *proxy;
+	if (_annotationTopRight != "") {
+		_topRightLabel = new QLabel(_annotationTopRight);
+		_topRightLabel->setFont(QFont("helvetica", 12));
+		proxy = _scene->addWidget(_topRightLabel);
+		proxy->setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
+		proxy->setPos(xmax-(xmax-xmin)/8.0, ymax-(ymax-ymin)/100.0);
+	}
+
+	if (_annotationTopLeft != "") {
+		_topLeftLabel = new QLabel(_annotationTopLeft);
+		_topLeftLabel->setFont(QFont("helvetica", 12));
+		proxy = _scene->addWidget(_topLeftLabel);
+		proxy->setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
+		proxy->setPos(xmin + (xmax-xmin)/20.0, ymax-(ymax-ymin)/100.0);
+	}
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -491,6 +525,9 @@ void QMicroMap::timerEvent(QTimerEvent *event) {
 
 	// draw the grid
 	drawGrid(_zoomRectStack.top());
+
+	// add annotation
+	drawAnnotation(_zoomRectStack.top());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,6 +582,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			QRectF scenerect = _zoomRectStack.top();
 			fitInView(scenerect);
 			drawGrid(scenerect);
+			drawAnnotation(scenerect);
 		}
 		// Hide rubber band after right button is clicked and released
 		if (_rubberBand)
@@ -596,6 +634,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 				QRectF scenerect = mapToScene(bandrect).boundingRect();
 				fitInView(scenerect);
 				drawGrid(scenerect);
+				drawAnnotation(scenerect);
 				_zoomRectStack.push(scenerect);
 			}
 			//else
@@ -607,6 +646,8 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			QRectF viewRect = mapToScene(viewport()->geometry()).boundingRect();
 			// draw the grid
 			drawGrid(viewRect);
+			// add annotation
+			drawAnnotation(viewRect);
 			QGraphicsView::mouseReleaseEvent(event);
 			break;
 		}
@@ -674,11 +715,23 @@ void QMicroMap::reset() {
 
 	// redraw the grid
 	drawGrid(scenerect);
+
+	// add the annotation
+	drawAnnotation(scenerect);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::setLevelName(QString levelName)
+void QMicroMap::setTopRightAnnotation(QString text)
 {
-	_levelName = levelName;
+	_annotationTopRight = text;
 	drawGrid(_zoomRectStack.top());
+	drawAnnotation(_zoomRectStack.top());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void QMicroMap::setTopLeftAnnotation(QString text) {
+	_annotationTopLeft = text;
+	drawGrid(_zoomRectStack.top());
+	drawAnnotation(_zoomRectStack.top());
 }

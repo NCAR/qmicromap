@@ -184,9 +184,12 @@ public slots:
 	void grid(int on);
 	/// Reset the display to the minimum display level.
 	void reset();
-	/// Set the selected level name for display
-	/// @param levelName The name of the selected level
-	void setLevelName(QString levelName);
+	/// Set the top right annotation
+	/// @param text The text to be displayed. Blank for none.
+	void setTopRightAnnotation(QString levelName);
+	/// Set the top left annotation
+	/// @param text The text to be displayed. Blank for none.
+	void setTopLeftAnnotation(QString text);
 
 signals:
 	/// Emit this signal to inform others that the mouse mode has changed.
@@ -242,6 +245,9 @@ protected:
     /// on the current span of the viewport.
     /// @param viewRect Current span of viewport
     void drawGrid(const QRectF viewRect);
+    /// Draw the annotation labels
+    /// @param viewRect Current span of viewport
+    void drawAnnotation(const QRectF viewRect);
     /// The geometric database.
 	SpatiaLiteDB& _db;
 	/// The graphics scene which manages our drawing elements.
@@ -265,17 +271,21 @@ protected:
     bool _gridOn;
     /// The collection of grid lines.
     QGraphicsItemGroup* _gridGroup;
-    /// The selected level name
-    QString _levelName;
-    /// The label showing selected level name
-    QGraphicsSimpleTextItem* _levelLabel;
+    /// Annotation to be displayed on the top right
+    QString _annotationTopRight;
+    /// Annotation to be displayed on the top left
+    QString _annotationTopLeft;
+    /// The label showing the top right annotation
+    QLabel* _topRightLabel;
+    /// The label showing the top left annotation
+    QLabel* _topLeftLabel;
     /// The current mouse mode.
     MOUSE_MODE _mouseMode;
     /// The rubberband box used for zooming.
     QRubberBand* _rubberBand;
     /// The rubberband origin.
     QPoint _rbOrigin;
-    // The active timer id
+    /// The active timer id
     int _timerId;
 };
 
