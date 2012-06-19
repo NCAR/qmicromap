@@ -123,7 +123,8 @@ void QStationModelGraphicsItem::paint(QPainter *painter,
 		painter->drawEllipse(-dotRadius, -dotRadius, 2 * dotRadius, 2 * dotRadius);
 	}
 
-	painter->setPen(QPen("blue"));
+	// Make the text darker than darkblue (#00008B)
+	painter->setPen(QPen("#000050"));
 	drawTextFields(painter);
 
 	painter->setPen(oldPen);
