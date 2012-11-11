@@ -54,7 +54,6 @@ def qmicromap(env):
     env.EnableQt4Modules(qt4Modules)
     env.AppendUnique(CPPPATH   =[thisdir,])
     env.AppendDoxref('QMicroMap')    
-    env.Replace(CCFLAGS=['-g','-O2'])
     if env['PLATFORM'] == 'darwin':
 		mac_qt_setup(env)
     if env['PLATFORM'] == 'win32':

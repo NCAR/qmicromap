@@ -9,8 +9,6 @@ env = Environment(tools = ['default'] + tools)
 
 env.Uic4(['QMicroMapTest.ui',])
 
-env.Replace(CCFLAGS=['-g','-O2'])
-
 sources = ['qmmtest.cpp','QMicroMapTest.cpp']
 
 test = env.Program('qmmtest', sources)
