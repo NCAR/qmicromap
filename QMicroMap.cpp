@@ -451,7 +451,6 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 	}
 }
 
-
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawAnnotation(const QRectF viewRect) {
 
@@ -494,7 +493,6 @@ void QMicroMap::drawAnnotation(const QRectF viewRect) {
 		proxy->setFlag( QGraphicsItem::ItemIgnoresTransformations, true );
 		proxy->setPos(xmin + (xmax-xmin)/20.0, ymax-(ymax-ymin)/100.0);
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -648,6 +646,7 @@ void QMicroMap::mouseReleaseEvent(QMouseEvent *event) {
 			drawGrid(viewRect);
 			// add annotation
 			drawAnnotation(viewRect);
+			_zoomRectStack.push(viewRect);
 			QGraphicsView::mouseReleaseEvent(event);
 			break;
 		}
@@ -718,7 +717,6 @@ void QMicroMap::reset() {
 
 	// add the annotation
 	drawAnnotation(scenerect);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
