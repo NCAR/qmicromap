@@ -1,8 +1,6 @@
 import os
 import sys
 
-import eol_scons
-
 tools = ['qmicromap','doxygen','prefixoptions']
 
 env = Environment(tools = ['default'] + tools)

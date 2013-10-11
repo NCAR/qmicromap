@@ -1,6 +1,5 @@
 import os
 import sys
-import eol_scons
 
 tools = ['qt4','spatialdb','doxygen','prefixoptions']
 env = Environment(tools = ['default'] + tools)
