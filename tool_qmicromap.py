@@ -19,19 +19,20 @@ def mac_qt_setup(env):
 	# Qt configuration:
 	#    the following uses the frameworks scheme available for gcc on Mac OS
 	#    to provide libraries and library paths
-    frameworkpath='/usr/local/lib'
-    env.AppendUnique(FRAMEWORKPATH=[frameworkpath,])
-    env.AppendUnique(FRAMEWORKS=qt4Modules)
+    #frameworkpath='/usr/local/lib'
+    #env.AppendUnique(FRAMEWORKPATH=[frameworkpath,])
+    #env.AppendUnique(FRAMEWORKS=qt4Modules)
+    pass
 
 libsources = Split("""
-QMicroMap.cpp
-QStationModelGraphicsItem.cpp
+  QMicroMap.cpp
+  QStationModelGraphicsItem.cpp
 """)
 
 headers = Split("""
-QMicroMap.h
-QStationModelGraphicsItem.h
-MicroMapOverview.h
+  QMicroMap.h
+  QStationModelGraphicsItem.h
+  MicroMapOverview.h
 """)
 
 if env['PLATFORM'] == 'darwin':
