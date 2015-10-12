@@ -1,4 +1,5 @@
 import os
 import sys
 
-SConscript("test/SConscript")
+SConscript("micromaptest/SConscript")
+SConscript("spatialtest/SConscript")
