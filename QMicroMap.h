@@ -9,6 +9,11 @@
 #define QMICROMAP_H_
 
 #include <QtGui/QtGui>
+#include <QtWidgets/QGraphicsView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QRubberBand>
+#include <QtWidgets/QGraphicsItemGroup>
+#include <QtWidgets/QGraphicsProxyWidget>
 #include <stack>
 #include <vector>
 #include <string>

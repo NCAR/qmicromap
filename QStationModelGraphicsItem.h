@@ -13,6 +13,11 @@
 #include <set>
 #include <bitset>
 
+#include <QtWidgets/QGraphicsItem>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QGraphicsSceneContextMenuEvent>
+
 /// @brief A QGraphicsItem representation of the meteorological station model.
 ///
 /// A wind barb and text elements are rendered.
