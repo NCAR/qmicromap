@@ -265,6 +265,7 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 	}
 
 	QPen pen(lfeature->_baseColor.c_str());
+	pen.setWidth(0);
 	QPainterPath path;
 	path.moveTo(ls[0]._x, ls[0]._y);
 	for (int i = 1; i < ls.size(); i++) {
@@ -331,6 +332,7 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 	}
 
 	QPen pen(pfeature->_edgeColor.c_str());
+	pen.setWidth(0);
 	QBrush brush(pfeature->_baseColor.c_str());
 
 	SpatiaLiteDB::Ring extRing = pl.extRing();
@@ -386,6 +388,7 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 
 	// draw new grid (always over the whole scene area)
 	QPen pen("grey");
+	pen.setWidth(0);
 	QList<double> lons;
 	for (double x = _xmin; x <= _xmax; x += delta) {
 		// longitude
