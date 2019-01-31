@@ -38,9 +38,9 @@ _isPres(isPres),
 _hh(hh),
 _mm(mm),
 _scale(scale),
+_parts(parts),
 _aspectRatio(1.0),
 _setHighlighted(false),
-_parts(parts),
 _removeText(removeText),
 _processText(processText)
 {
@@ -458,7 +458,7 @@ void QStationModelGraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent 
     QObject::connect(&menu, SIGNAL(triggered(QAction *)), this, SLOT(contextAction(QAction*)));
 
     // display the menu
-    QAction *selectedAction = menu.exec(event->screenPos());
+    menu.exec(event->screenPos());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////

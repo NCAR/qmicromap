@@ -138,7 +138,7 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QMicroMap::~QMicroMap() {
-	for (int i = 0; i < _features.size(); i++) {
+	for (unsigned int i = 0; i < _features.size(); i++) {
 		delete _features[i];
 	}
 }
@@ -236,15 +236,15 @@ void QMicroMap::drawFeatures() {
 		SpatiaLiteDB::LinestringList linestrings = _db.linestrings();
 		SpatiaLiteDB::PolygonList polygons = _db.polygons();
 
-		for (int i = 0; i < points.size(); i++) {
+		for (unsigned int i = 0; i < points.size(); i++) {
 			drawPoint(*feature, points[i], _pointsGroup);
 		}
 
-		for (int i = 0; i < polygons.size(); i++) {
+		for (unsigned int i = 0; i < polygons.size(); i++) {
 			drawPolygon(*feature, polygons[i]);
 		}
 
-		for (int i = 0; i < linestrings.size(); i++) {
+		for (unsigned int i = 0; i < linestrings.size(); i++) {
 			drawLinestring(*feature, linestrings[i]);
 		}
 	}
@@ -268,7 +268,7 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 	pen.setWidth(0);
 	QPainterPath path;
 	path.moveTo(ls[0]._x, ls[0]._y);
-	for (int i = 1; i < ls.size(); i++) {
+	for (unsigned int i = 1; i < ls.size(); i++) {
 		path.lineTo(ls[i]._x, ls[i]._y);
 	}
 
@@ -337,7 +337,7 @@ void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
 
 	SpatiaLiteDB::Ring extRing = pl.extRing();
 	QPolygonF poly;
-	for (int i = 0; i < extRing.size(); i++) {
+	for (unsigned int i = 0; i < extRing.size(); i++) {
 		poly << QPointF(extRing[i]._x, extRing[i]._y);
 	}
 
@@ -457,8 +457,6 @@ void QMicroMap::drawGrid(const QRectF viewRect) {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawAnnotation(const QRectF viewRect) {
 
-	// get the current height of the viewport, in degrees.
-	double h = viewRect.height();
 	// get dimension of the viewport (note: y axis is inverted)
 	double xmin = viewRect.topLeft().x();
 	if (xmin < _xmin) xmin = _xmin;
