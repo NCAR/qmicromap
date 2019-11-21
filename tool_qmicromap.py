@@ -11,14 +11,14 @@ env.EnableQtModules(qtModules)
 def win_qt_setup(env):
     # Windows needs an extra include path for Qt modules.
     qt5include = env['QT5DIR'] + '/include'
-    env.AppendUnique(CPPPATH=[qt5include,]) 
+    env.AppendUnique(CPPPATH=[qt5include,])
     env.EnableQtModules(qtModules)
 
 def mac_qt_setup(env):
-	# Mac OS setup
-	# Qt configuration:
-	#    the following uses the frameworks scheme available for gcc on Mac OS
-	#    to provide libraries and library paths
+    # Mac OS setup
+    # Qt configuration:
+    #    the following uses the frameworks scheme available for gcc on Mac OS
+    #    to provide libraries and library paths
     #frameworkpath='/usr/local/lib'
     #env.AppendUnique(FRAMEWORKPATH=[frameworkpath,])
     #env.AppendUnique(FRAMEWORKS=qt4Modules)
@@ -53,9 +53,9 @@ def qmicromap(env):
     env.Require(tools)
     env.EnableQtModules(qtModules)
     env.AppendUnique(CPPPATH   =[thisdir,])
-    env.AppendDoxref('QMicroMap')    
+    env.AppendDoxref('QMicroMap')
     if env['PLATFORM'] == 'darwin':
-		mac_qt_setup(env)
+        mac_qt_setup(env)
     if env['PLATFORM'] == 'win32':
         win_qt_setup(env)
 
