@@ -113,8 +113,8 @@ QMicroMap::QMicroMap(SpatiaLiteDB& db, double xmin, double ymin, double xmax,
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	// Invert the y axis
-	QMatrix m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
-	QGraphicsView::setMatrix(m);
+	QTransform m(1.0, 0.0, 0.0, -1.0, 0.0, 0.0);
+	QGraphicsView::setTransform(m);
 
 	_pointsGroup = new QGraphicsItemGroup;
 
