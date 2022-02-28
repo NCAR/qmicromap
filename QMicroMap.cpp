@@ -253,6 +253,8 @@ void QMicroMap::drawFeatures() {
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 
+	assert(feature);
+	
 	LineFeature* lfeature = dynamic_cast<LineFeature*> (feature);
 	if (!lfeature) {
 		std::cerr << "dynamic cast failed for line in " << feature->_tableName
@@ -282,6 +284,8 @@ void QMicroMap::drawLinestring(Feature* feature, SpatiaLiteDB::Linestring& ls) {
 void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt,
 		QGraphicsItemGroup* group) {
 
+	assert(feature);
+	
 	PointFeature* pfeature = dynamic_cast<PointFeature*> (feature);
 	if (!pfeature) {
 		std::cerr << "dynamic cast failed for line in " << feature->_tableName
@@ -323,6 +327,8 @@ void QMicroMap::drawPoint(Feature* feature, SpatiaLiteDB::Point& pt,
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QMicroMap::drawPolygon(Feature* feature, SpatiaLiteDB::Polygon& pl) {
+
+	assert(feature);
 
 	PolygonFeature* pfeature = dynamic_cast<PolygonFeature*> (feature);
 	if (!pfeature) {
