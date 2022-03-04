@@ -7,6 +7,7 @@
 #include "QMicroMap.h"
 #include <iostream>
 #include <algorithm>
+#include <assert.h>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void printTransform(QTransform t) {
