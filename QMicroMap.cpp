@@ -519,7 +519,7 @@ void QMicroMap::resizeEvent(QResizeEvent* event) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::timerEvent(QTimerEvent *event) {
+void QMicroMap::timerEvent(QTimerEvent* /*event*/) {
 
 	if (_timerId != -1) {
 		killTimer(_timerId);
@@ -691,7 +691,7 @@ void QMicroMap::setMouseMode(MOUSE_MODE mode) {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-void QMicroMap::mouseDoubleClickEvent (QMouseEvent * event) {
+void QMicroMap::mouseDoubleClickEvent(QMouseEvent* /*event*/) {
 
 	switch (_mouseMode) {
 	case MOUSE_SELECT:
