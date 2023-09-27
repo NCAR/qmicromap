@@ -106,7 +106,7 @@ QPainterPath QStationModelGraphicsItem::shape() const
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 void QStationModelGraphicsItem::paint(QPainter *painter,
-		const QStyleOptionGraphicsItem *option, QWidget *widget) {
+		const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/) {
 
 	QPen oldPen = painter->pen();
 
