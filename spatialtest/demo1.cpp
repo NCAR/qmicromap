@@ -179,7 +179,8 @@ this interface is a more complex one, but is well
 suited in order to access huge sized result sets
 and true value type control is supported
 */
-	  sprintf (sql, "SELECT * FROM %s", p_geotables[i]);
+	  snprintf (sql, sizeof(sql), "SELECT * FROM %s", p_geotables[i]);
+
 	  ret = sqlite3_prepare_v2 (handle, sql, strlen (sql), &stmt, NULL);
 	  if (ret != SQLITE_OK)
 	    {
