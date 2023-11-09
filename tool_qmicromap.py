@@ -1,18 +1,17 @@
-import os
-import sys
 
-tools = ['qt5','spatialdb','doxygen','prefixoptions']
-env = Environment(tools = ['default'] + tools)
+tools = ['spatialdb', 'doxygen', 'prefixoptions']
+env = Environment(tools=['default'] + tools)
 
 # qt modules
-qtModules = Split('QtCore QtGui QtSvg')
-env.EnableQtModules(qtModules)
+qttools = env.Split('qtcore qtgui qtsvg')
+env.Require(qttools)
+
 
 def win_qt_setup(env):
     # Windows needs an extra include path for Qt modules.
     qt5include = env['QT5DIR'] + '/include'
-    env.AppendUnique(CPPPATH=[qt5include,])
-    env.EnableQtModules(qtModules)
+    env.AppendUnique(CPPPATH=[qt5include])
+    env.Require(qttools)
 
 def mac_qt_setup(env):
     # Mac OS setup
@@ -51,8 +50,8 @@ thisdir = env.Dir('.').srcnode().abspath
 def qmicromap(env):
     env.AppendLibrary('qmicromap')
     env.Require(tools)
-    env.EnableQtModules(qtModules)
-    env.AppendUnique(CPPPATH   =[thisdir,])
+    env.Require(qttools)
+    env.AppendUnique(CPPPATH=[thisdir])
     env.AppendDoxref('QMicroMap')
     if env['PLATFORM'] == 'darwin':
         mac_qt_setup(env)
