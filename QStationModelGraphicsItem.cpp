@@ -6,7 +6,11 @@
  */
 
 #include "QStationModelGraphicsItem.h"
-#include <iostream>
+
+#include <qpen.h>
+#include <qpainter.h>
+
+#include <cmath>
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 QStationModelGraphicsItem::QStationModelGraphicsItem(

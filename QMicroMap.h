@@ -8,7 +8,6 @@
 #ifndef QMICROMAP_H_
 #define QMICROMAP_H_
 
-#include <QtGui/QtGui>
 #include <QtWidgets/QGraphicsView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QRubberBand>

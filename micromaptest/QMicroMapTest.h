@@ -8,7 +8,6 @@
 #ifndef QMICROMAPTEST_H_
 #define QMICROMAPTEST_H_
 
-#include <QtGui/QtGui>
 #include "ui_QMicroMapTest.h"
 #include "QMicroMap.h"
 
