@@ -132,8 +132,8 @@ int main(int argc, char *argv[]) {
 			}
 			std::cout << "*** total objects: " << totalObjects << std::endl;
 		}
-	} catch (std::string error) {
-		std::cout << error << std::endl;
+	} catch (std::runtime_error& error) {
+		std::cout << error.what() << std::endl;
 	}
 
 	return 0;
