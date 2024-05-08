@@ -172,7 +172,15 @@ void QMicroMap::selectFeatures() {
 
 	// get the names of tables containing geometry
 	std::vector < std::string > geo_tables;
-	geo_tables = _db.geometryTables();
+	try {
+		geo_tables = _db.geometryTables();
+	}
+	catch (std::runtime_error& err)
+	{
+		std::cerr << _db.dbPath()
+				  << ": database error loading geometry tables: "
+				  << err.what() << std::endl;
+	}
 
 	// query the tables, to verify that the feature is available
 	for (std::vector<Feature*>::iterator feature = all_features.begin();
@@ -229,8 +237,8 @@ void QMicroMap::drawFeatures() {
 					geometryColumn,
 					_xmin, _ymin, _xmax, _ymax,
 					nameColumn);
-		} catch (std::string& error) {
-			std::cout << error << std::endl;
+		} catch (std::runtime_error& error) {
+			std::cout << error.what() << std::endl;
 		}
 
 		SpatiaLiteDB::PointList points = _db.points();
