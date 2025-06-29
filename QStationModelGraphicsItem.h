@@ -13,7 +13,7 @@
 #include <bitset>
 
 #include <QtWidgets/QGraphicsItem>
-#include <QtWidgets/QAction>
+#include <QAction>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QGraphicsSceneContextMenuEvent>
 
