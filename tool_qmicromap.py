@@ -1,4 +1,6 @@
 
+from SCons.Script import Environment, Export
+
 tools = ['spatialdb', 'doxygen', 'prefixoptions']
 env = Environment(tools=['default'] + tools)
 
@@ -6,12 +8,12 @@ env = Environment(tools=['default'] + tools)
 qttools = env.Split('qtcore qtgui qtsvg')
 env.Require(qttools)
 
-libsources = Split("""
+libsources = env.Split("""
   QMicroMap.cpp
   QStationModelGraphicsItem.cpp
 """)
 
-headers = Split("""
+headers = env.Split("""
   QMicroMap.h
   QStationModelGraphicsItem.h
   MicroMapOverview.h
@@ -20,15 +22,18 @@ headers = Split("""
 libqmicromap = env.Library('qmicromap', libsources)
 env.Default(libqmicromap)
 
-html = env.Apidocs(libsources + headers,  DOXYFILE_DICT={'PROJECT_NAME':'QMicroMap', 'PROJECT_NUMBER':'1.0'})
+html = env.Apidocs(libsources + headers,
+                   DOXYFILE_DICT={'PROJECT_NAME': 'QMicroMap',
+                                  'PROJECT_NUMBER': '1.0'})
 
 thisdir = env.Dir('.').srcnode().abspath
+
 
 def qmicromap(env):
     env.AppendLibrary('qmicromap')
     env.Require(tools)
     env.Require(qttools)
     env.AppendUnique(CPPPATH=[thisdir])
-    env.AppendDoxref('QMicroMap')
+
 
 Export('qmicromap')

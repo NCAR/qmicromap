@@ -1,5 +1,5 @@
-/// @mainpage MicroMap Overview
-/// @section MicroMapIntroduction MicroMap Introduction
+/// @page MicroMap MicroMap Overview
+/// @section MicroMapIntroduction Introduction
 ///
 /// MicroMap provides an embedded spatial database suitable for
 /// distribution with stand alone applications.
