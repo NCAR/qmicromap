@@ -51,6 +51,7 @@
 class QStationModelGraphicsItem: public QObject, public QGraphicsItem
 {
 	Q_OBJECT
+	Q_INTERFACES(QGraphicsItem)
 
 	/// @brief TextSectors is a helper class which locates the texts so that
 	/// they don't interfere with the wind barb. A sector scheme is used. The
