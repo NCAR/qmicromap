@@ -30,7 +30,7 @@ QStationModelGraphicsItem::QStationModelGraphicsItem(
 		ulong parts,
 		std::string removeText,
 		std::string processText) :
-QGraphicsItem(),
+QGraphicsObject(),
 _filename(filename),
 _x(x),
 _y(y),

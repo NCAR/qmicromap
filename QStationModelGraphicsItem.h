@@ -48,10 +48,9 @@
 /// @todo Make the context menu scheme more generic. Always providing
 /// a two entry context menu will not be appropriate for all applications
 /// and is unnecessarily restrictive.
-class QStationModelGraphicsItem: public QObject, public QGraphicsItem
+class QStationModelGraphicsItem: public QGraphicsObject
 {
 	Q_OBJECT
-	Q_INTERFACES(QGraphicsItem)
 
 	/// @brief TextSectors is a helper class which locates the texts so that
 	/// they don't interfere with the wind barb. A sector scheme is used. The
